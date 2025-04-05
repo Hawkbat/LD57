@@ -14,6 +14,7 @@ import { OreType, tileMap } from "./tilemap.js"
 const PROC_LAYERS = 8
 const LAYER_WIDTH = FILLMAP_WIDTH
 const LAYER_HEIGHT = FILLMAP_HEIGHT / PROC_LAYERS
+const ROOMS_PER_LAYER = 20
 
 const ORE_CHANCES_BY_LAYER: Partial<Record<OreType, number>>[] = [
     { [OreType.empty]: 2, [OreType.fuel]: 0.1, [OreType.oxygen]: 0.1, [OreType.bronze]: 0.05 }, // Layer 0 (Seabed)
@@ -62,8 +63,7 @@ function generate() {
                 }
             }
         } else {
-            const roomCount = Math.floor(Math.random() * 9) + 16
-            for (let i = 0; i < roomCount; i++) {
+            for (let i = 0; i < ROOMS_PER_LAYER; i++) {
                 const roomWidth = Math.floor(Math.random() * 6) + 2
                 const roomHeight = Math.floor(Math.random() * 6) + 2
                 const roomX = Math.floor(Math.random() * (LAYER_WIDTH - roomWidth))
@@ -81,18 +81,18 @@ function generate() {
                         tileMap.setFilled(roomX + x, roomY + y + layer * LAYER_HEIGHT, filled)
                     }
                 }
+            }
 
-                // Spawn monsters
-                for (let x = roomX; x < roomX + roomWidth; x++) {
-                    for (let y = roomY; y < roomY + roomHeight; y++) {
-                        if (tileMap.getFilled(x, y + layer * LAYER_HEIGHT)) continue
-                        if (Math.random() < 0.05 && tileMap.getFilled(x, y + 1 + layer * LAYER_HEIGHT)) {
-                            const [mineX, mineY] = tileMap.fillToWorldCoords(x, y + layer * LAYER_HEIGHT)
-                            addEntity(new Mine(mineX, mineY))
-                        } else if (Math.random() < 0.02 && layer > 2) {
-                            const [anglerX, anglerY] = tileMap.fillToWorldCoords(x, y + layer * LAYER_HEIGHT)
-                            addEntity(new Angler(anglerX, anglerY))
-                        }
+            // Spawn monsters
+            for (let x = 0; x < LAYER_WIDTH; x++) {
+                for (let y = 0; y < LAYER_HEIGHT; y++) {
+                    if (tileMap.getFilled(x, y + layer * LAYER_HEIGHT)) continue
+                    if (Math.random() < 0.05 && tileMap.getFilled(x, y + 1 + layer * LAYER_HEIGHT)) {
+                        const [mineX, mineY] = tileMap.fillToWorldCoords(x, y + layer * LAYER_HEIGHT)
+                        addEntity(new Mine(mineX, mineY))
+                    } else if (Math.random() < 0.02 && layer > 2) {
+                        const [anglerX, anglerY] = tileMap.fillToWorldCoords(x, y + layer * LAYER_HEIGHT)
+                        addEntity(new Angler(anglerX, anglerY))
                     }
                 }
             }
