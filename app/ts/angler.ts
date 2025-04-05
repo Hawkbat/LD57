@@ -94,7 +94,11 @@ export class Angler extends Entity {
         ctx.scale(this.facing, 1)
         ctx.fillStyle = '#FFA'
         ctx.beginPath()
-        ctx.arc(26, -14, 32, 0, Math.PI * 2)
+        if (this.alerted) {
+            ctx.arc(0, 0, 64, 0, Math.PI * 2)
+        } else {
+            ctx.arc(27, -16, 8, 0, Math.PI * 2)
+        }
         ctx.fill()
         ctx.restore()
     }
