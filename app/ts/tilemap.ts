@@ -1,6 +1,6 @@
 import { SpriteAsset } from "./assets.js"
 import { camera } from "./camera.js"
-import { FILLMAP_WIDTH, FILLMAP_HEIGHT, OREMAP_WIDTH, OREMAP_HEIGHT, PLAY_AREA_WIDTH, PLAY_AREA_HEIGHT } from "./constants.js"
+import { FILLMAP_WIDTH, FILLMAP_HEIGHT, OREMAP_WIDTH, OREMAP_HEIGHT, PLAY_AREA_WIDTH, PLAY_AREA_HEIGHT, DEBUG_TILE_POSITIONS } from "./constants.js"
 import { Entity } from "./entity.js"
 
 /*
@@ -139,17 +139,21 @@ export class TileMap extends Entity {
 
                 tilesetSprite.draw(ctx, tileX, tileY, tileIndex)
 
-                ctx.strokeStyle = '#000'
-                ctx.lineWidth = 2
-                ctx.strokeRect(baseX + tx * TILE_WIDTH, baseY + ty * TILE_HEIGHT, TILE_WIDTH, TILE_HEIGHT)
+                if (DEBUG_TILE_POSITIONS) {
+                    ctx.strokeStyle = '#000'
+                    ctx.lineWidth = 2
+                    ctx.strokeRect(baseX + tx * TILE_WIDTH, baseY + ty * TILE_HEIGHT, TILE_WIDTH, TILE_HEIGHT)
+                }
             }
         }
-        for (let x = 0; x < FILLMAP_WIDTH; x++) {
-            for (let y = 0; y < FILLMAP_HEIGHT; y++) {
-                ctx.fillStyle = this.getFilled(x, y) ? '#000' : '#FFF'
-                ctx.beginPath()
-                ctx.arc(baseX + x * TILE_WIDTH, baseY + y * TILE_HEIGHT, 5, 0, Math.PI * 2)
-                ctx.fill()
+        if (DEBUG_TILE_POSITIONS) {
+            for (let x = 0; x < FILLMAP_WIDTH; x++) {
+                for (let y = 0; y < FILLMAP_HEIGHT; y++) {
+                    ctx.fillStyle = this.getFilled(x, y) ? '#000' : '#FFF'
+                    ctx.beginPath()
+                    ctx.arc(baseX + x * TILE_WIDTH, baseY + y * TILE_HEIGHT, 5, 0, Math.PI * 2)
+                    ctx.fill()
+                }
             }
         }
     }
