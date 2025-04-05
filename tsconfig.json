@@ -1,0 +1,13 @@
+{
+    "compilerOptions": {
+        "target": "ESNext",
+        "module": "ESNext",
+        "strict": true,
+        "rootDir": "./app/ts",
+        "outDir": "./app/js",
+        "sourceMap": true,
+        "composite": true,
+        "noImplicitAny": true,
+        "noImplicitOverride": true
+    }
+}
