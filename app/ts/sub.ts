@@ -1,5 +1,6 @@
 import { SpriteAsset } from "./assets.js"
 import { camera } from "./camera.js"
+import { WORLD_LIMIT_X } from "./constants.js"
 import { Entity } from "./entity.js"
 import { ACTIONS } from "./input.js"
 import { moveAngleTowards } from "./math.js"
@@ -141,7 +142,7 @@ export class Sub extends Entity {
             }
         }
 
-        camera.x = this.x
+        camera.x = Math.min(WORLD_LIMIT_X, Math.max(-WORLD_LIMIT_X, this.x))
         camera.y = Math.min(this.y + 128, Math.max(this.y - 128, camera.y))
         if (camera.y !== this.y) {
             camera.y += (this.y - camera.y) * dt
