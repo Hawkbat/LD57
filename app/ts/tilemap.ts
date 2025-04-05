@@ -98,11 +98,11 @@ export enum OreType {
 }
 
 export class TileMap extends Entity {
-    public filled: boolean[] = new Array(FILLMAP_WIDTH * FILLMAP_HEIGHT).fill(false)
+    public filled: boolean[] = new Array(FILLMAP_WIDTH * FILLMAP_HEIGHT).fill(true)
     public ores: OreType[] = new Array(OREMAP_WIDTH * OREMAP_HEIGHT).fill(OreType.empty)
 
     override reset(): void {
-        this.filled = new Array(FILLMAP_WIDTH * FILLMAP_HEIGHT).fill(false)
+        this.filled = new Array(FILLMAP_WIDTH * FILLMAP_HEIGHT).fill(true)
         this.ores = new Array(OREMAP_WIDTH * OREMAP_HEIGHT).fill(OreType.empty)
     }
 
@@ -130,7 +130,11 @@ export class TileMap extends Entity {
 
                 if (tileIndex === 15) {
                     const oreType = this.getOre(tx, ty)
-                    tileIndex = 20 + oreType
+                    if (oreType !== OreType.empty) {
+                        tileIndex = 19 + oreType
+                    } else {
+                        tileIndex = 15 + (tx + ty) % 5
+                    }
                 } else if (tileIndex > 0) {
                     tileIndex = TILE_INDEX_REMAP[tileIndex]
                 } else {
@@ -166,12 +170,28 @@ export class TileMap extends Entity {
         return [fillX, fillY]
     }
 
+    fillToWorldCoords(x: number, y: number): [number, number] {
+        const fillWorldOffsetX = (-FILLMAP_WIDTH * 0.5 + 0.5) * TILE_WIDTH
+        const fillWorldOffsetY = 0
+        const worldX = Math.round(x * TILE_WIDTH + fillWorldOffsetX)
+        const worldY = Math.round(y * TILE_HEIGHT + fillWorldOffsetY)
+        return [worldX, worldY]
+    }
+
     worldToOreCoords(x: number, y: number): [number, number] {
         const oreWorldOffsetX = (-OREMAP_WIDTH * 0.5 + 0.5) * TILE_WIDTH
         const oreWorldOffsetY = 0.5 * TILE_HEIGHT
         const oreX = Math.round((x - oreWorldOffsetX) / TILE_WIDTH)
         const oreY = Math.round((y - oreWorldOffsetY) / TILE_HEIGHT)
         return [oreX, oreY]
+    }
+
+    oreToWorldCoords(x: number, y: number): [number, number] {
+        const oreWorldOffsetX = (-OREMAP_WIDTH * 0.5 + 0.5) * TILE_WIDTH
+        const oreWorldOffsetY = 0.5 * TILE_HEIGHT
+        const worldX = Math.round(x * TILE_WIDTH + oreWorldOffsetX)
+        const worldY = Math.round(y * TILE_HEIGHT + oreWorldOffsetY)
+        return [worldX, worldY]
     }
 
     setFilled(x: number, y: number, value: boolean): void {
