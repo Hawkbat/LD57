@@ -66,6 +66,18 @@ export class Mine extends Monster {
         }
     }
 
+    override renderLights(ctx: OffscreenCanvasRenderingContext2D): void {
+        if (this.exploded) {
+            const [mineX, mineY] = camera.fromWorld(this.x, this.y)
+            const brightness = 0xF - Math.floor(this.explosionTime / EXPLOSION_TIME * 0xF)
+            const l = brightness.toString(16)
+            ctx.fillStyle = `#${l}${l}${l}`
+            ctx.beginPath()
+            ctx.arc(mineX, mineY, EXPLOSION_RADIUS, 0, Math.PI * 2)
+            ctx.fill()
+        }
+    }
+
     override hit(damage: number): void {
         if (!this.exploded) {
             this.explode()
