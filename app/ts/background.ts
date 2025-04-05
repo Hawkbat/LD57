@@ -15,10 +15,6 @@ export class Background extends Entity {
     }
 
     render(ctx: CanvasRenderingContext2D): void {
-        const depth = camera.y
-
-        // TODO: use depth to determine the background color
-
         ctx.fillStyle = "#246"
         ctx.fillRect(0, 0, ctx.canvas.width, ctx.canvas.height)
 
