@@ -8,8 +8,6 @@ export class Background extends Entity {
     update(dt) {
     }
     render(ctx) {
-        const depth = camera.y;
-        // TODO: use depth to determine the background color
         ctx.fillStyle = "#246";
         ctx.fillRect(0, 0, ctx.canvas.width, ctx.canvas.height);
         const [, bgY] = camera.fromWorld(0, 0);

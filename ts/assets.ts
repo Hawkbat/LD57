@@ -4,6 +4,8 @@ export class SpriteAsset {
     public loaded: boolean = false
     public tileWidth: number
     public tileHeight: number
+    public width: number = 0
+    public height: number = 0
 
     constructor(url: string, tileWidth: number, tileHeight: number) {
         this.tileWidth = tileWidth
@@ -11,14 +13,16 @@ export class SpriteAsset {
         this.image = new Image()
         this.image.onload = () => {
             this.loaded = true
+            this.width = this.image.width
+            this.height = this.image.height
         }
         this.image.src = url
     }
 
     public draw(ctx: CanvasRenderingContext2D | OffscreenCanvasRenderingContext2D, x: number, y: number, frame: number) {
         if (this.loaded) {
-            const cols = Math.floor(this.image.width / this.tileWidth)
-            const rows = Math.floor(this.image.height / this.tileHeight)
+            const cols = Math.floor(this.width / this.tileWidth)
+            const rows = Math.floor(this.height / this.tileHeight)
             const col = frame % cols
             const row = Math.floor(frame / cols) % rows
             ctx.drawImage(

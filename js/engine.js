@@ -6,7 +6,7 @@ const fpsValues = [];
 export function getAverageFPS() {
     return fpsValues.reduce((a, b) => a + b, 0) / fpsValues.length;
 }
-export function run() {
+export function runEngine() {
     try {
         const mainCanvas = document.createElement('canvas');
         mainCanvas.width = GAME_WIDTH;

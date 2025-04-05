@@ -1,23 +1,29 @@
 import { SpriteAsset } from "./assets.js";
-import { Entity } from "./entity.js";
 import { sub } from "./sub.js";
 import { camera } from "./camera.js";
-const SPEED = 300;
+import { Monster } from "./monster.js";
+import { PLAY_AREA_WIDTH, PLAY_AREA_HEIGHT } from "./constants.js";
+const SPEED = 350;
 const DRAG_FACTOR = 0.95;
 const DETECTION_RADIUS = 128;
 const LOSE_CHASE_RADIUS = 384;
 const ANIM_FRAME_RATE = 0.1;
 const ATTACK_RADIUS = 48;
 const ATTACK_DAMAGE = 1;
-const anglerSprite = new SpriteAsset('images/Anglerfish.png', 64, 64);
-export class Angler extends Entity {
-    x = 0;
-    y = 0;
+const SPRITE_WIDTH = 64;
+const SPRITE_HEIGHT = 64;
+const anglerSprite = new SpriteAsset('images/Anglerfish.png', SPRITE_WIDTH, SPRITE_HEIGHT);
+export class Angler extends Monster {
     dx = 0;
     dy = 0;
     facing = 1; // 1 = right, -1 = left
     alerted = false;
     animTime = 0;
+    constructor(x, y) {
+        super();
+        this.x = x;
+        this.y = y;
+    }
     reset() {
         this.x = 0;
         this.y = 0;
@@ -65,6 +71,9 @@ export class Angler extends Entity {
     }
     render(ctx) {
         const [anglerX, anglerY] = camera.fromWorld(this.x, this.y);
+        if (anglerX < -SPRITE_WIDTH * 0.5 || anglerX > PLAY_AREA_WIDTH + SPRITE_WIDTH * 0.5 || anglerY < -SPRITE_HEIGHT * 0.5 || anglerY > PLAY_AREA_HEIGHT + SPRITE_HEIGHT * 0.5) {
+            return;
+        }
         ctx.save();
         ctx.translate(anglerX, anglerY);
         ctx.scale(this.facing, 1);
@@ -82,9 +91,16 @@ export class Angler extends Entity {
         ctx.scale(this.facing, 1);
         ctx.fillStyle = '#FFA';
         ctx.beginPath();
-        ctx.arc(26, -14, 32, 0, Math.PI * 2);
+        if (this.alerted) {
+            ctx.arc(0, 0, 64, 0, Math.PI * 2);
+        }
+        else {
+            ctx.arc(27, -16, 8, 0, Math.PI * 2);
+        }
         ctx.fill();
         ctx.restore();
+    }
+    hit(damage) {
     }
 }
 //# sourceMappingURL=angler.js.map

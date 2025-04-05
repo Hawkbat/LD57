@@ -6,6 +6,12 @@ export class Entity {
     }
 }
 const entities = [];
+export function clearEntities() {
+    for (const entity of entities) {
+        entity.reset();
+    }
+    entities.length = 0;
+}
 export function resetEntities() {
     for (const entity of entities) {
         entity.reset();
@@ -35,5 +41,8 @@ export function removeEntity(entity) {
     if (index !== -1) {
         entities.splice(index, 1);
     }
+}
+export function getEntitiesOfType(type) {
+    return entities.filter(entity => entity instanceof type);
 }
 //# sourceMappingURL=entity.js.map

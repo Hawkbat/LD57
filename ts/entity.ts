@@ -14,6 +14,13 @@ export abstract class Entity {
 
 const entities: Entity[] = []
 
+export function clearEntities(): void {
+    for (const entity of entities) {
+        entity.reset()
+    }
+    entities.length = 0
+}
+
 export function resetEntities(): void {
     for (const entity of entities) {
         entity.reset()
@@ -48,4 +55,8 @@ export function removeEntity(entity: Entity): void {
     if (index !== -1) {
         entities.splice(index, 1)
     }
+}
+
+export function getEntitiesOfType<T>(type: Function & { prototype: T }): T[] {
+    return entities.filter(entity => entity instanceof type) as T[]
 }

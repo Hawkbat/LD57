@@ -1,9 +1,10 @@
 import { SpriteAsset } from "./assets.js"
-import { Entity } from "./entity.js"
 import { sub } from "./sub.js"
 import { camera } from "./camera.js"
+import { Monster } from "./monster.js"
+import { PLAY_AREA_WIDTH, PLAY_AREA_HEIGHT } from "./constants.js"
 
-const SPEED = 300
+const SPEED = 350
 const DRAG_FACTOR = 0.95
 const DETECTION_RADIUS = 128
 const LOSE_CHASE_RADIUS = 384
@@ -11,16 +12,23 @@ const ANIM_FRAME_RATE = 0.1
 const ATTACK_RADIUS = 48
 const ATTACK_DAMAGE = 1
 
-const anglerSprite = new SpriteAsset('images/Anglerfish.png', 64, 64)
+const SPRITE_WIDTH = 64
+const SPRITE_HEIGHT = 64
 
-export class Angler extends Entity {
-    public x: number = 0
-    public y: number = 0
+const anglerSprite = new SpriteAsset('images/Anglerfish.png', SPRITE_WIDTH, SPRITE_HEIGHT)
+
+export class Angler extends Monster {
     public dx: number = 0
     public dy: number = 0
     public facing: number = 1 // 1 = right, -1 = left
     public alerted: boolean = false
     animTime: number = 0
+
+    constructor(x: number, y: number) {
+        super()
+        this.x = x
+        this.y = y
+    }
 
     reset(): void {
         this.x = 0
@@ -76,6 +84,11 @@ export class Angler extends Entity {
 
     render(ctx: CanvasRenderingContext2D): void {
         const [anglerX, anglerY] = camera.fromWorld(this.x, this.y)
+
+        if (anglerX < -SPRITE_WIDTH * 0.5 || anglerX > PLAY_AREA_WIDTH + SPRITE_WIDTH * 0.5 || anglerY < -SPRITE_HEIGHT * 0.5 || anglerY > PLAY_AREA_HEIGHT + SPRITE_HEIGHT * 0.5) {
+            return
+        }
+
         ctx.save()
         ctx.translate(anglerX, anglerY)
         ctx.scale(this.facing, 1)
@@ -94,8 +107,16 @@ export class Angler extends Entity {
         ctx.scale(this.facing, 1)
         ctx.fillStyle = '#FFA'
         ctx.beginPath()
-        ctx.arc(26, -14, 32, 0, Math.PI * 2)
+        if (this.alerted) {
+            ctx.arc(0, 0, 64, 0, Math.PI * 2)
+        } else {
+            ctx.arc(27, -16, 8, 0, Math.PI * 2)
+        }
         ctx.fill()
         ctx.restore()
+    }
+
+    override hit(damage: number): void {
+        
     }
 }
