@@ -5,6 +5,7 @@ import { Entity } from "./entity.js"
 import { sub } from "./sub.js"
 
 const oxygenTankSprite = new SpriteAsset('images/Oxygen_Tank.png', 32, 64)
+const fuelTankSprite = new SpriteAsset('images/Fuel_Tank.png', 32, 64)
 
 export class HUD extends Entity {
 
@@ -40,7 +41,7 @@ export class HUD extends Entity {
         const fuelFillHeight = Math.round(42 * sub.fuel)
         ctx.fillStyle = '#FF0'
         ctx.fillRect(fuelTankX + 13, fuelTankY + 11 + (42 - fuelFillHeight), 4, fuelFillHeight)
-        oxygenTankSprite.draw(ctx, fuelTankX + 16, fuelTankY + 32, 0)
+        fuelTankSprite.draw(ctx, fuelTankX + 16, fuelTankY + 32, 0)
 
         ctx.font = '16px Arbutus'
         ctx.textAlign = 'center'
@@ -56,9 +57,9 @@ export class HUD extends Entity {
         ctx.fillText(`${longitude}m`, hudX + HUD_WIDTH / 2, hudY + 160)
         ctx.fillText('Longitude', hudX + HUD_WIDTH / 2, hudY + 192)
         
-        if (sub.oxygen < 0.1) {
+        if (sub.oxygen < 0.2) {
             ctx.fillStyle = '#F00'
-            ctx.fillText('Oxygen Low!', PLAY_AREA_WIDTH / 2, PLAY_AREA_HEIGHT - 128)
+            ctx.fillText('Oxygen Low!', hudX + HUD_WIDTH / 2, hudY + 224)
         }
 
         ctx.fillStyle = '#FFF'
