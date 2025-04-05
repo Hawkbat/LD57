@@ -56,3 +56,7 @@ export function removeEntity(entity: Entity): void {
         entities.splice(index, 1)
     }
 }
+
+export function getEntitiesOfType<T>(type: Function & { prototype: T }): T[] {
+    return entities.filter(entity => entity instanceof type) as T[]
+}
