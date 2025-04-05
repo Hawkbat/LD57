@@ -3,6 +3,7 @@ import { GAME_HEIGHT, GAME_WIDTH, HUD_WIDTH, PLAY_AREA_HEIGHT, PLAY_AREA_WIDTH }
 import { getAverageFPS } from "./engine.js"
 import { Entity } from "./entity.js"
 import { sub } from "./sub.js"
+import { tileMap } from "./tilemap.js"
 
 const oxygenTankSprite = new SpriteAsset('images/Oxygen_Tank.png', 32, 64)
 const fuelTankSprite = new SpriteAsset('images/Fuel_Tank.png', 32, 64)
@@ -61,6 +62,13 @@ export class HUD extends Entity {
             ctx.fillStyle = '#F00'
             ctx.fillText('Oxygen Low!', hudX + HUD_WIDTH / 2, hudY + 224)
         }
+
+        const [subFillX, subFillY] = tileMap.worldToFillCoords(sub.x, sub.y)
+        const [subOreX, subOreY] = tileMap.worldToOreCoords(sub.x, sub.y)
+
+        ctx.fillStyle = '#FFF'
+        ctx.fillText(`${subFillX}, ${subFillY}`, hudX + HUD_WIDTH / 2, hudY + 256)
+        ctx.fillText(`${subOreX}, ${subOreY}`, hudX + HUD_WIDTH / 2, hudY + 288)
 
         ctx.fillStyle = '#FFF'
         ctx.textAlign = 'right'

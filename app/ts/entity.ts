@@ -14,6 +14,13 @@ export abstract class Entity {
 
 const entities: Entity[] = []
 
+export function clearEntities(): void {
+    for (const entity of entities) {
+        entity.reset()
+    }
+    entities.length = 0
+}
+
 export function resetEntities(): void {
     for (const entity of entities) {
         entity.reset()
