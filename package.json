@@ -5,7 +5,7 @@
     "scripts": {
         "build": "tsc -b tsconfig.json",
         "build:watch": "tsc -b tsconfig.json --watch",
-        "clean": "rimraf app/js/*",
+        "clean": "rimraf app/js tsconfig.tsbuildinfo",
         "start": "serve -s app -l 3000",
         "publish": "gh-pages -d app"
     },
