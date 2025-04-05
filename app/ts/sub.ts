@@ -6,14 +6,14 @@ import { ACTIONS } from "./input.js"
 import { moveAngleTowards } from "./math.js"
 import { tileMap } from "./tilemap.js"
 
-const THRUST_SPEED = 300
-const RESURFACE_SPEED_BONUS = 150
+const THRUST_SPEED = 400
+const RESURFACE_SPEED_BONUS = 200
 const DRAG_FACTOR = 0.95
 const OXYGEN_DRAIN_RATE = 1 / 60 // 1 minute
 const OXYGEN_REFILL_RATE = 1 / 5 // 5 seconds
 const HURT_INVULN_TIME = 1.0
 const TURN_SPEED = Math.PI // radians per second
-const DRILL_FUEL_COST = 0.025 // cost of breaking one tile
+const DRILL_FUEL_COST = 0.02 // cost of breaking one tile
 const REFUEL_MAX_DIST = 64
 const REFUEL_RATE = 0.1 // 10 seconds to refuel
 
