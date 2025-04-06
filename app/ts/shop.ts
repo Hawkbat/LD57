@@ -37,6 +37,10 @@ export class Shop extends Entity {
     public purchases: ShopItem[] = []
     public money: number = 0
 
+    override get sortOrder(): number {
+        return 110
+    }
+
     override reset(): void {
         this.cursorIndex = 0
         this.purchases = []
