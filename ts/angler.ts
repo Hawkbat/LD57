@@ -1,4 +1,4 @@
-import { SpriteAsset } from "./assets.js"
+import { SoundAsset, SpriteAsset } from "./assets.js"
 import { sub } from "./sub.js"
 import { camera } from "./camera.js"
 import { Monster } from "./monster.js"
@@ -16,6 +16,8 @@ const SPRITE_WIDTH = 64
 const SPRITE_HEIGHT = 64
 
 const anglerSprite = new SpriteAsset('images/Anglerfish.png', SPRITE_WIDTH, SPRITE_HEIGHT)
+
+const alertSound = new SoundAsset('sounds/angler.wav')
 
 export class Angler extends Monster {
     public dx: number = 0
@@ -62,6 +64,7 @@ export class Angler extends Monster {
         } else {
             if (dist < DETECTION_RADIUS) {
                 this.alerted = true
+                alertSound.play()
             }
         }
 

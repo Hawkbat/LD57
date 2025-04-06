@@ -25,6 +25,9 @@ export class Shop extends Entity {
     cursorIndex = 0;
     purchases = [];
     money = 0;
+    get sortOrder() {
+        return 110;
+    }
     reset() {
         this.cursorIndex = 0;
         this.purchases = [];

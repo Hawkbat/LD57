@@ -9,6 +9,7 @@ export declare class Shop extends Entity {
     cursorIndex: number;
     purchases: ShopItem[];
     money: number;
+    get sortOrder(): number;
     reset(): void;
     update(dt: number): void;
     render(ctx: CanvasRenderingContext2D): void;

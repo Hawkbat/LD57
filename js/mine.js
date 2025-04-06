@@ -1,32 +1,52 @@
-import { SpriteAsset } from "./assets.js";
+import { SoundAsset, SpriteAsset } from "./assets.js";
 import { camera } from "./camera.js";
 import { PLAY_AREA_HEIGHT, PLAY_AREA_WIDTH } from "./constants.js";
 import { getEntitiesOfType, removeEntity } from "./entity.js";
 import { distance } from "./math.js";
 import { Monster } from "./monster.js";
 import { sub } from "./sub.js";
+import { tileMap } from "./tilemap.js";
 const COLLISION_RADIUS = 64; // pixels
 const EXPLOSION_TIME = 1; // seconds
 const EXPLOSION_RADIUS = 128; // pixels
 const EXPLOSION_DAMAGE = 1;
+const UNTETHER_FLOAT_SPEED = 32;
 const SPRITE_WIDTH = 64;
 const SPRITE_HEIGHT = 64;
 const mineSprite = new SpriteAsset('images/Mine.png', SPRITE_WIDTH, SPRITE_HEIGHT);
 const explosionSprite = new SpriteAsset('images/Explosion.png', 64, 64);
+const explosionSound = new SoundAsset('sounds/explosion.wav');
 export class Mine extends Monster {
     exploded = false;
     explosionTime = 0;
+    untethered = false;
     constructor(x, y) {
         super();
         this.x = x;
         this.y = y;
     }
     reset() {
+        this.x = 0;
+        this.y = 0;
         this.exploded = false;
         this.explosionTime = 0;
+        this.untethered = false;
     }
     update(dt) {
         if (!this.exploded) {
+            if (this.untethered) {
+                this.y -= UNTETHER_FLOAT_SPEED * dt;
+                const [fillX, fillY] = tileMap.worldToFillCoords(this.x, this.y);
+                if (tileMap.getFilled(fillX, fillY) || this.y < 0) {
+                    this.explode();
+                }
+            }
+            else {
+                const [belowX, belowY] = tileMap.worldToFillCoords(this.x, this.y + 64);
+                if (!tileMap.getFilled(belowX, belowY)) {
+                    this.untethered = true;
+                }
+            }
             const dist = distance(this.x, this.y, sub.x, sub.y);
             if (dist < COLLISION_RADIUS) {
                 this.explode();
@@ -81,6 +101,7 @@ export class Mine extends Monster {
             return;
         this.exploded = true;
         this.explosionTime = 0;
+        explosionSound.play(0.5);
         const dist = distance(this.x, this.y, sub.x, sub.y);
         if (dist < EXPLOSION_RADIUS) {
             sub.hit(EXPLOSION_DAMAGE);

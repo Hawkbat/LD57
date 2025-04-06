@@ -23,6 +23,8 @@ export declare class Sub extends Entity {
     inventorySize: number;
     inventoryPickups: Pickup[];
     menu: 'none' | 'shop' | 'pause';
+    moveSoundCallback: (() => void) | null;
+    miningSoundCallback: (() => void) | null;
     reset(): void;
     update(dt: number): void;
     render(ctx: CanvasRenderingContext2D): void;

@@ -57,6 +57,11 @@ export function removeEntity(entity: Entity): void {
     }
 }
 
+export function getEntityOfType<T>(type: Function & { prototype: T }): T | null {
+    const entity = entities.find(entity => entity instanceof type) as T | undefined
+    return entity ?? null
+}
+
 export function getEntitiesOfType<T>(type: Function & { prototype: T }): T[] {
     return entities.filter(entity => entity instanceof type) as T[]
 }

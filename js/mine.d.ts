@@ -2,6 +2,7 @@ import { Monster } from "./monster.js";
 export declare class Mine extends Monster {
     exploded: boolean;
     explosionTime: number;
+    untethered: boolean;
     constructor(x: number, y: number);
     reset(): void;
     update(dt: number): void;

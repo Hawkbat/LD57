@@ -1,3 +1,44 @@
+const audioContext = new AudioContext({ latencyHint: 'interactive' });
+const mainVolume = audioContext.createGain();
+mainVolume.connect(audioContext.destination);
+export function getVolume() {
+    return mainVolume.gain.value;
+}
+export function setVolume(value) {
+    mainVolume.gain.setValueAtTime(value, audioContext.currentTime);
+}
+export class SoundAsset {
+    buffer = null;
+    loaded = false;
+    constructor(url) {
+        fetch(url)
+            .then(response => response.arrayBuffer())
+            .then(data => audioContext.decodeAudioData(data))
+            .then(buffer => {
+            this.buffer = buffer;
+            this.loaded = true;
+        })
+            .catch(error => console.error('Error loading sound:', error));
+    }
+    play(volume = 1, loop = false) {
+        if (this.loaded && this.buffer) {
+            const source = audioContext.createBufferSource();
+            source.buffer = this.buffer;
+            source.loop = loop;
+            const gainNode = audioContext.createGain();
+            gainNode.gain.value = volume;
+            gainNode.connect(mainVolume);
+            source.connect(gainNode);
+            source.start();
+            return () => {
+                source.stop();
+                source.disconnect();
+                gainNode.disconnect();
+            };
+        }
+        return () => { }; // No-op function if not loaded
+    }
+}
 export class SpriteAsset {
     image;
     loaded = false;

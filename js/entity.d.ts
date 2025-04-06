@@ -12,6 +12,9 @@ export declare function renderEntities(ctx: CanvasRenderingContext2D): void;
 export declare function renderEntityLights(ctx: OffscreenCanvasRenderingContext2D): void;
 export declare function addEntity(entity: Entity): void;
 export declare function removeEntity(entity: Entity): void;
+export declare function getEntityOfType<T>(type: Function & {
+    prototype: T;
+}): T | null;
 export declare function getEntitiesOfType<T>(type: Function & {
     prototype: T;
 }): T[];

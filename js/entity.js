@@ -42,6 +42,10 @@ export function removeEntity(entity) {
         entities.splice(index, 1);
     }
 }
+export function getEntityOfType(type) {
+    const entity = entities.find(entity => entity instanceof type);
+    return entity ?? null;
+}
 export function getEntitiesOfType(type) {
     return entities.filter(entity => entity instanceof type);
 }
