@@ -1,4 +1,4 @@
-import { SpriteAsset } from "./assets.js"
+import { SoundAsset, SpriteAsset } from "./assets.js"
 import { camera } from "./camera.js"
 import { WORLD_LIMIT_X } from "./constants.js"
 import { Debris } from "./debris.js"
@@ -27,6 +27,7 @@ const PICKUP_OXYGEN_AMOUNT = 0.2 // 20% per pickup
 const PICKUP_FUEL_AMOUNT = 0.2 // 20% per pickup
 
 const MINING_ANIM_RATE = 0.05 // seconds per frame
+const LOW_OXYGEN_THRESHOLD = 0.3 // 30% oxygen
 
 const ORE_MINING_TIMES: Record<OreType, number> = {
     [OreType.empty]: 0.25,
@@ -40,6 +41,14 @@ const ORE_MINING_TIMES: Record<OreType, number> = {
 
 const subSprite = new SpriteAsset('images/Drillship_01.png', 64, 64)
 const subLightSprite = new SpriteAsset('images/Drillship_Light.png', 256, 256)
+
+const damagedSound = new SoundAsset('sounds/shipdamage.wav')
+const moveSound = new SoundAsset('sounds/shipmove.wav')
+const mineStartSound = new SoundAsset('sounds/DrillPowered.wav')
+const mineLoopSound = new SoundAsset('sounds/rock break.wav')
+const outOfFuelSound = new SoundAsset('sounds/DrillUnpowered.wav')
+const pickupOreSound = new SoundAsset('sounds/collect.wav')
+const lowOxygenSound = new SoundAsset('sounds/alarm.wav')
 
 export class Sub extends Entity {
     public x: number = 0
@@ -68,6 +77,9 @@ export class Sub extends Entity {
 
     public menu: 'none' | 'shop' | 'pause' = 'none'
 
+    moveSoundCallback: (() => void) | null = null
+    miningSoundCallback: (() => void) | null = null
+
     reset(): void {
         this.x = 0
         this.y = 0
@@ -90,6 +102,7 @@ export class Sub extends Entity {
         this.inventorySize = INITIAL_INVENTORY_SIZE
         this.inventoryPickups = []
         this.menu = 'none'
+        this.moveSoundCallback = null
     }
 
     update(dt: number): void {
@@ -128,6 +141,15 @@ export class Sub extends Entity {
             }
             this.dx += Math.cos(targetRotation) * dt * THRUST_SPEED
             this.dy += Math.sin(targetRotation) * dt * (THRUST_SPEED + resurfaceSpeedBoost)
+            
+            if (this.moveSoundCallback == null) {
+                this.moveSoundCallback = moveSound.play(0.5, true)
+            }
+        } else {
+            if (this.moveSoundCallback != null) {
+                this.moveSoundCallback()
+                this.moveSoundCallback = null
+            }
         }
 
         this.dx *= DRAG_FACTOR
@@ -167,12 +189,26 @@ export class Sub extends Entity {
                 this.miningTime = 0
                 this.miningFillX = fillX
                 this.miningFillY = fillY
+                if (this.fuel > 0) {
+                    mineStartSound.play(0.5)
+                    if (this.miningSoundCallback !== null) {
+                        this.miningSoundCallback()
+                    }
+                    this.miningSoundCallback = mineLoopSound.play(1, true)
+                } else {
+                    outOfFuelSound.play()
+                }
             }
             
             if (this.fuel > 0) {
                 this.fuel -= MINING_FUEL_DRAIN_RATE * dt
                 if (this.fuel < 0) {
                     this.fuel = 0
+                    outOfFuelSound.play()
+                    if (this.miningSoundCallback !== null) {
+                        this.miningSoundCallback()
+                        this.miningSoundCallback = null
+                    }
                 }
                 this.miningTime += dt
             }
@@ -207,11 +243,19 @@ export class Sub extends Entity {
                     }
                     tileMap.setFilled(fillX, fillY, false)
                     this.mining = false
+                    if (this.miningSoundCallback !== null) {
+                        this.miningSoundCallback()
+                        this.miningSoundCallback = null
+                    }
                 }
             }
         } else {
             this.mining = false
             this.miningTime = 0
+            if (this.miningSoundCallback !== null) {
+                this.miningSoundCallback()
+                this.miningSoundCallback = null
+            }
         }
 
         if (this.y <= 0) {
@@ -228,7 +272,11 @@ export class Sub extends Entity {
                 }
             }
         } else {
+            const prevOxygen = this.oxygen
             this.oxygen -= OXYGEN_DRAIN_RATE * dt
+            if (this.oxygen < LOW_OXYGEN_THRESHOLD && prevOxygen >= LOW_OXYGEN_THRESHOLD) {
+                lowOxygenSound.play()
+            }
             if (this.oxygen < 0) {
                 this.oxygen = 0
                 // TODO: Handle game over
@@ -265,6 +313,7 @@ export class Sub extends Entity {
                         }
                     } else {
                         this.inventory.push(pickup.oreType)
+                        pickupOreSound.play()
                     }
                     removeEntity(pickup)
                 }
@@ -324,6 +373,7 @@ export class Sub extends Entity {
         if (this.invulnerable) return
         this.invulnerable = true
         this.invulnerableTime = HURT_INVULN_TIME
+        damagedSound.play()
         // TODO: Handle damage to sub
     }
 }

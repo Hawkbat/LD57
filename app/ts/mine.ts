@@ -1,4 +1,4 @@
-import { SpriteAsset } from "./assets.js"
+import { SoundAsset, SpriteAsset } from "./assets.js"
 import { camera } from "./camera.js"
 import { PLAY_AREA_HEIGHT, PLAY_AREA_WIDTH } from "./constants.js"
 import { getEntitiesOfType, removeEntity } from "./entity.js"
@@ -18,6 +18,8 @@ const SPRITE_HEIGHT = 64
 
 const mineSprite = new SpriteAsset('images/Mine.png', SPRITE_WIDTH, SPRITE_HEIGHT)
 const explosionSprite = new SpriteAsset('images/Explosion.png', 64, 64)
+
+const explosionSound = new SoundAsset('sounds/explosion.wav')
 
 export class Mine extends Monster {
     public exploded: boolean = false
@@ -106,6 +108,8 @@ export class Mine extends Monster {
         if (this.exploded) return
         this.exploded = true
         this.explosionTime = 0
+
+        explosionSound.play(0.5)
 
         const dist = distance(this.x, this.y, sub.x, sub.y)
         if (dist < EXPLOSION_RADIUS) {

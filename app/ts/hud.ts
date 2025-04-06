@@ -64,7 +64,7 @@ export class HUD extends Entity {
         ctx.fillText(`${longitude}m`, hudX + HUD_WIDTH / 2, hudY + 160)
         ctx.fillText('Longitude', hudX + HUD_WIDTH / 2, hudY + 192)
         
-        if (sub.oxygen < 0.2) {
+        if (sub.oxygen < 0.3) {
             ctx.fillStyle = '#F00'
             ctx.fillText('Oxygen Low!', hudX + HUD_WIDTH / 2, hudY + 224)
         }
