@@ -17,14 +17,14 @@ const LAYER_HEIGHT = FILLMAP_HEIGHT / PROC_LAYERS
 const ROOMS_PER_LAYER = 20
 
 const ORE_CHANCES_BY_LAYER: Partial<Record<OreType, number>>[] = [
-    { [OreType.empty]: 2, [OreType.fuel]: 0.1, [OreType.oxygen]: 0.1, [OreType.bronze]: 0.05 }, // Layer 0 (Seabed)
-    { [OreType.empty]: 2, [OreType.fuel]: 0.1, [OreType.oxygen]: 0.1, [OreType.bronze]: 0.1, [OreType.silver]: 0.02 }, // Layer 1
-    { [OreType.empty]: 2, [OreType.fuel]: 0.2, [OreType.oxygen]: 0.2, [OreType.bronze]: 0.2, [OreType.silver]: 0.1, [OreType.gold]: 0.02 }, // Layer 2
-    { [OreType.empty]: 2, [OreType.fuel]: 0.2, [OreType.oxygen]: 0.2, [OreType.bronze]: 0.1, [OreType.silver]: 0.2, [OreType.gold]: 0.1 }, // Layer 3
-    { [OreType.empty]: 2, [OreType.fuel]: 0.2, [OreType.oxygen]: 0.2, [OreType.silver]: 0.2, [OreType.gold]: 0.15, [OreType.diamond]: 0.02 }, // Layer 4
-    { [OreType.empty]: 2, [OreType.fuel]: 0.25, [OreType.oxygen]: 0.25, [OreType.silver]: 0.2, [OreType.gold]: 0.2, [OreType.diamond]: 0.05 }, // Layer 5
-    { [OreType.empty]: 2, [OreType.fuel]: 0.25, [OreType.oxygen]: 0.25, [OreType.gold]: 0.25, [OreType.diamond]: 0.1 }, // Layer 6
-    { [OreType.empty]: 2, [OreType.fuel]: 0.25, [OreType.oxygen]: 0.25, [OreType.diamond]: 0.2 }, // Layer 7
+    { [OreType.empty]: 2, [OreType.fuel]: 0.05, [OreType.oxygen]: 0.05, [OreType.bronze]: 0.05 }, // Layer 0 (Seabed)
+    { [OreType.empty]: 2, [OreType.fuel]: 0.05, [OreType.oxygen]: 0.05, [OreType.bronze]: 0.1, [OreType.silver]: 0.02 }, // Layer 1
+    { [OreType.empty]: 2, [OreType.fuel]: 0.1, [OreType.oxygen]: 0.1, [OreType.bronze]: 0.2, [OreType.silver]: 0.1, [OreType.gold]: 0.02 }, // Layer 2
+    { [OreType.empty]: 2, [OreType.fuel]: 0.1, [OreType.oxygen]: 0.1, [OreType.bronze]: 0.1, [OreType.silver]: 0.2, [OreType.gold]: 0.1 }, // Layer 3
+    { [OreType.empty]: 2, [OreType.fuel]: 0.1, [OreType.oxygen]: 0.1, [OreType.silver]: 0.2, [OreType.gold]: 0.15, [OreType.diamond]: 0.02 }, // Layer 4
+    { [OreType.empty]: 2, [OreType.fuel]: 0.15, [OreType.oxygen]: 0.15, [OreType.silver]: 0.2, [OreType.gold]: 0.2, [OreType.diamond]: 0.05 }, // Layer 5
+    { [OreType.empty]: 2, [OreType.fuel]: 0.15, [OreType.oxygen]: 0.15, [OreType.gold]: 0.25, [OreType.diamond]: 0.1 }, // Layer 6
+    { [OreType.empty]: 2, [OreType.fuel]: 0.15, [OreType.oxygen]: 0.15, [OreType.diamond]: 0.2 }, // Layer 7
 ]
 
 function randomOre(layer: number): OreType {
