@@ -2,9 +2,9 @@ import { SpriteAsset } from "./assets.js"
 import { camera } from "./camera.js"
 import { WORLD_LIMIT_X } from "./constants.js"
 import { Debris } from "./debris.js"
-import { addEntity, Entity } from "./entity.js"
+import { addEntity, Entity, getEntitiesOfType, removeEntity } from "./entity.js"
 import { ACTIONS } from "./input.js"
-import { moveAngleTowards } from "./math.js"
+import { distance, moveAngleTowards, moveVectorTowards } from "./math.js"
 import { Pickup } from "./pickup.js"
 import { OreType, tileMap } from "./tilemap.js"
 
@@ -21,6 +21,10 @@ const MINING_FUEL_DRAIN_RATE = 1 / 15 // 15 seconds
 const REFUEL_MAX_DIST = 64
 const REFUEL_RATE = 1 / 10 // 10 seconds to refuel
 const INITIAL_INVENTORY_SIZE = 12
+
+const PICKUP_RADIUS = 64 // pixels
+const PICKUP_OXYGEN_AMOUNT = 0.2 // 20% per pickup
+const PICKUP_FUEL_AMOUNT = 0.2 // 20% per pickup
 
 const MINING_ANIM_RATE = 0.05 // seconds per frame
 
@@ -228,6 +232,42 @@ export class Sub extends Entity {
             if (this.oxygen < 0) {
                 this.oxygen = 0
                 // TODO: Handle game over
+            }
+        }
+
+        for (const pickup of getEntitiesOfType(Pickup)) {
+            if (!pickup.pickingUp) {
+                const hasRoom = this.inventory.length + this.inventoryPickups.length < this.inventorySize
+                if (hasRoom || pickup.oreType === OreType.fuel || pickup.oreType === OreType.oxygen) {
+                    const dist = distance(pickup.x, pickup.y, this.x, this.y)
+                    if (dist < PICKUP_RADIUS) {
+                        pickup.pickingUp = true
+                        pickup.pickupTime = 0
+                        this.inventoryPickups.push(pickup)
+                    }
+                }
+            }
+            if (pickup.pickingUp) {
+                [pickup.x, pickup.y] = moveVectorTowards(pickup.x, pickup.y, this.x, this.y, 100 * dt)
+                pickup.pickupTime += dt
+                const dist = distance(pickup.x, pickup.y, this.x, this.y)
+                if (pickup.pickupTime > 1 || dist < 8) {
+                    this.inventoryPickups.splice(this.inventoryPickups.indexOf(pickup), 1)
+                    if (pickup.oreType === OreType.fuel) {
+                        this.fuel += PICKUP_FUEL_AMOUNT
+                        if (this.fuel > this.fuelTanks) {
+                            this.fuel = this.fuelTanks
+                        }
+                    } else if (pickup.oreType === OreType.oxygen) {
+                        this.oxygen += PICKUP_OXYGEN_AMOUNT
+                        if (this.oxygen > this.oxygenTanks) {
+                            this.oxygen = this.oxygenTanks
+                        }
+                    } else {
+                        this.inventory.push(pickup.oreType)
+                    }
+                    removeEntity(pickup)
+                }
             }
         }
 
