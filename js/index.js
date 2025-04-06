@@ -8,6 +8,7 @@ import { addEntity, clearEntities } from "./entity.js";
 import { hud } from "./hud.js";
 import { distance } from "./math.js";
 import { Mine } from "./mine.js";
+import { shop } from "./shop.js";
 import { sub } from "./sub.js";
 import { OreType, tileMap } from "./tilemap.js";
 const PROC_LAYERS = 8;
@@ -84,7 +85,7 @@ function generate() {
                         const [mineX, mineY] = tileMap.fillToWorldCoords(x, y + layer * LAYER_HEIGHT);
                         addEntity(new Mine(mineX, mineY));
                     }
-                    else if (Math.random() < 0.02 && layer > 2) {
+                    else if (Math.random() < 0.05 && layer > 2) {
                         const [anglerX, anglerY] = tileMap.fillToWorldCoords(x, y + layer * LAYER_HEIGHT);
                         addEntity(new Angler(anglerX, anglerY));
                     }
@@ -116,6 +117,7 @@ function startGame() {
     addEntity(boat);
     addEntity(sub);
     addEntity(hud);
+    addEntity(shop);
     generate();
 }
 runEngine();

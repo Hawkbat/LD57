@@ -13,6 +13,8 @@ export declare const ACTIONS: {
     down: Action;
     left: Action;
     right: Action;
+    interact: Action;
+    cancel: Action;
 };
 export declare const ACTION_LIST: Action[];
 export declare function updateActions(): void;

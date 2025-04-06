@@ -1,4 +1,6 @@
 import { Entity } from "./entity.js";
+import { Pickup } from "./pickup.js";
+import { OreType } from "./tilemap.js";
 export declare class Sub extends Entity {
     x: number;
     y: number;
@@ -7,9 +9,20 @@ export declare class Sub extends Entity {
     facing: number;
     rotation: number;
     oxygen: number;
+    oxygenTanks: number;
     fuel: number;
+    fuelTanks: number;
     invulnerable: boolean;
     invulnerableTime: number;
+    mining: boolean;
+    miningTime: number;
+    miningFillX: number;
+    miningFillY: number;
+    miningSpeed: number;
+    inventory: OreType[];
+    inventorySize: number;
+    inventoryPickups: Pickup[];
+    menu: 'none' | 'shop' | 'pause';
     reset(): void;
     update(dt: number): void;
     render(ctx: CanvasRenderingContext2D): void;

@@ -32,6 +32,8 @@ export const ACTIONS = {
     down: new Action('Move Down', ['s', 'ArrowDown']),
     left: new Action('Move Left', ['a', 'ArrowLeft']),
     right: new Action('Move Right', ['d', 'ArrowRight']),
+    interact: new Action('Interact', ['e', ' ']),
+    cancel: new Action('Cancel', ['Escape']),
 };
 export const ACTION_LIST = Object.values(ACTIONS);
 window.addEventListener('keydown', e => {
