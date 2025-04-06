@@ -11,6 +11,8 @@ import { OreType, tileMap } from "./tilemap.js"
 const THRUST_SPEED = 400
 const RESURFACE_SPEED_BONUS = 200
 const DRAG_FACTOR = 0.95
+const COLLISION_SIZE = 24
+const DRILL_SIZE = 28
 const OXYGEN_DRAIN_RATE = 1 / 60 // 2 minutes
 const OXYGEN_REFILL_RATE = 1 / 5 // 5 seconds
 const HURT_INVULN_TIME = 1.0
@@ -134,14 +136,28 @@ export class Sub extends Entity {
         this.y += this.dy * dt
 
         this.y = Math.max(this.y, 0)
+        
+        for (let y = this.y - COLLISION_SIZE; y <= this.y + COLLISION_SIZE; y += COLLISION_SIZE) {
+            const [fillX, fillY] = tileMap.worldToFillCoords(this.x + COLLISION_SIZE * Math.sign(this.dx), y)
+            if (tileMap.getFilled(fillX, fillY)) {
+                this.x = previousX
+                this.dx = 0
+            }
+        }
 
-        const [fillX, fillY] = tileMap.worldToFillCoords(this.x, this.y)
+        for (let x = this.x - COLLISION_SIZE; x <= this.x + COLLISION_SIZE; x += COLLISION_SIZE) {
+            const [fillX, fillY] = tileMap.worldToFillCoords(x, this.y + COLLISION_SIZE * Math.sign(this.dy))
+            if (tileMap.getFilled(fillX, fillY)) {
+                this.y = previousY
+                this.dy = 0
+            }
+        }
+
+        const drillX = this.x + dirX * DRILL_SIZE
+        const drillY = this.y + dirY * DRILL_SIZE
+
+        const [fillX, fillY] = tileMap.worldToFillCoords(drillX, drillY)
         if (tileMap.getFilled(fillX, fillY)) {
-            this.x = previousX
-            this.y = previousY
-            this.dx = 0
-            this.dy = 0
-
             if (!this.mining || this.miningFillX !== fillX || this.miningFillY !== fillY) {
                 this.mining = true
                 this.miningTime = 0
