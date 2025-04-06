@@ -7,11 +7,11 @@ const boatSprite = new SpriteAsset('images/Boat.png', 128, 128)
 export class Boat extends Entity {
 
     reset(): void {
-        
+
     }
 
     update(dt: number): void {
-        
+
     }
 
     render(ctx: CanvasRenderingContext2D): void {

@@ -54,13 +54,13 @@ export class Pickup extends Entity {
                 sub.inventoryPickups.splice(sub.inventoryPickups.indexOf(this), 1)
                 if (this.oreType === OreType.fuel) {
                     sub.fuel += FUEL_REFILL_AMOUNT
-                    if (sub.fuel > 1) {
-                        sub.fuel = 1
+                    if (sub.fuel > sub.fuelTanks) {
+                        sub.fuel = sub.fuelTanks
                     }
                 } else if (this.oreType === OreType.oxygen) {
                     sub.oxygen += OXYGEN_REFILL_AMOUNT
-                    if (sub.oxygen > 1) {
-                        sub.oxygen = 1
+                    if (sub.oxygen > sub.oxygenTanks) {
+                        sub.oxygen = sub.oxygenTanks
                     }
                 } else {
                     sub.inventory.push(this.oreType)

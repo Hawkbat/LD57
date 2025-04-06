@@ -23,13 +23,13 @@ const INITIAL_INVENTORY_SIZE = 12
 const MINING_ANIM_RATE = 0.05 // seconds per frame
 
 const ORE_MINING_TIMES: Record<OreType, number> = {
-    [OreType.empty]: 0.2,
-    [OreType.fuel]: 0.3,
-    [OreType.oxygen]: 0.3,
+    [OreType.empty]: 0.25,
+    [OreType.fuel]: 0.4,
+    [OreType.oxygen]: 0.4,
     [OreType.bronze]: 0.6,
-    [OreType.silver]: 0.8,
-    [OreType.gold]: 1,
-    [OreType.diamond]: 2,
+    [OreType.silver]: 1,
+    [OreType.gold]: 2,
+    [OreType.diamond]: 3,
 }
 
 const subSprite = new SpriteAsset('images/Drillship_01.png', 64, 64)
@@ -43,8 +43,10 @@ export class Sub extends Entity {
     public facing: number = 1 // 1 = right, -1 = left
     public rotation: number = 0 // In radians
 
-    public oxygen: number = 1 // 0-100%
-    public fuel: number = 1 // 0-100%
+    public oxygen: number = 1 // 0-100%, goes higher with multiple tanks
+    public oxygenTanks: number = 1
+    public fuel: number = 1 // 0-100%, goes higher with multiple tanks
+    public fuelTanks: number = 1
     public invulnerable: boolean = false
     public invulnerableTime: number = 0
 
@@ -52,10 +54,13 @@ export class Sub extends Entity {
     public miningTime: number = 0
     public miningFillX: number = 0
     public miningFillY: number = 0
+    public miningSpeed: number = 1 // 0-100%, goes higher with upgrades
 
     public inventory: OreType[] = []
     public inventorySize: number = INITIAL_INVENTORY_SIZE
     public inventoryPickups: Pickup[] = []
+
+    public menu: 'none' | 'shop' | 'pause' = 'none'
 
     reset(): void {
         this.x = 0
@@ -65,40 +70,46 @@ export class Sub extends Entity {
         this.facing = 1
         this.rotation = 0
         this.oxygen = 1
+        this.oxygenTanks = 1
         this.fuel = 1
+        this.fuelTanks = 1
         this.invulnerable = false
         this.invulnerableTime = 0
         this.mining = false
         this.miningTime = 0
         this.miningFillX = 0
         this.miningFillY = 0
+        this.miningSpeed = 1
         this.inventory = []
         this.inventorySize = INITIAL_INVENTORY_SIZE
         this.inventoryPickups = []
+        this.menu = 'none'
     }
 
     update(dt: number): void {
         let dirX = 0
         let dirY = 0
-        if (ACTIONS.up.held) {
-            dirY += -1
-        }
-        if (ACTIONS.down.held) {
-            dirY += 1
-        }
-        if (ACTIONS.right.held) {
-            dirX += 1
-            if (this.facing < 0) {
-                this.rotation = Math.atan2(dirY, dirX)
+        if (this.menu === 'none') {
+            if (ACTIONS.up.held) {
+                dirY += -1
             }
-            this.facing = 1
-        }
-        if (ACTIONS.left.held) {
-            dirX += -1
-            if (this.facing > 0) {
-                this.rotation = Math.atan2(dirY, dirX)
+            if (ACTIONS.down.held) {
+                dirY += 1
             }
-            this.facing = -1
+            if (ACTIONS.right.held) {
+                dirX += 1
+                if (this.facing < 0) {
+                    this.rotation = Math.atan2(dirY, dirX)
+                }
+                this.facing = 1
+            }
+            if (ACTIONS.left.held) {
+                dirX += -1
+                if (this.facing > 0) {
+                    this.rotation = Math.atan2(dirY, dirX)
+                }
+                this.facing = -1
+            }
         }
 
         let targetRotation = this.rotation
@@ -106,7 +117,7 @@ export class Sub extends Entity {
         if (dirX !== 0 || dirY !== 0) {
             targetRotation = Math.atan2(dirY, dirX)
             let resurfaceSpeedBoost = 0
-            if (ACTIONS.up.held && dirY < 0) {
+            if (dirY < 0) {
                 resurfaceSpeedBoost = RESURFACE_SPEED_BONUS
             }
             this.dx += Math.cos(targetRotation) * dt * THRUST_SPEED
@@ -154,7 +165,7 @@ export class Sub extends Entity {
                     tileMap.getOre(fillX, fillY),
                 )
                 const oreMiningTime = ORE_MINING_TIMES[Number(oreType) as OreType] ?? 0
-                if (this.miningTime >= oreMiningTime) {
+                if (this.miningTime * this.miningSpeed >= oreMiningTime) {
 
                     const debrisCount = 8 + Math.floor(Math.random() * 3)
                     for (let i = 0; i < debrisCount; i++) {
@@ -185,15 +196,15 @@ export class Sub extends Entity {
 
         if (this.y <= 0) {
             this.oxygen += OXYGEN_REFILL_RATE * dt
-            if (this.oxygen > 1) {
-                this.oxygen = 1
+            if (this.oxygen > this.oxygenTanks) {
+                this.oxygen = this.oxygenTanks
             }
             targetRotation = this.facing < 0 ? Math.PI : 0
 
             if (Math.abs(this.x) < REFUEL_MAX_DIST) {
                 this.fuel += REFUEL_RATE * dt
-                if (this.fuel > 1) {
-                    this.fuel = 1
+                if (this.fuel > this.fuelTanks) {
+                    this.fuel = this.fuelTanks
                 }
             }
         } else {

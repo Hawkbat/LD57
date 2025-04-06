@@ -8,6 +8,7 @@ import { addEntity, clearEntities } from "./entity.js"
 import { hud } from "./hud.js"
 import { distance } from "./math.js"
 import { Mine } from "./mine.js"
+import { shop } from "./shop.js"
 import { sub } from "./sub.js"
 import { OreType, tileMap } from "./tilemap.js"
 
@@ -120,6 +121,7 @@ function startGame() {
     addEntity(boat)
     addEntity(sub)
     addEntity(hud)
+    addEntity(shop)
 
     generate()
 }

@@ -30,19 +30,25 @@ export class HUD extends Entity {
         const hudHeight = ctx.canvas.height
         ctx.fillRect(hudX, hudY, hudWidth, hudHeight)
         
-        const o2TankX = hudX
-        const o2TankY = hudY
-        const o2FillHeight = Math.round(42 * sub.oxygen)
-        ctx.fillStyle = '#0FF'
-        ctx.fillRect(o2TankX + 13, o2TankY + 11 + (42 - o2FillHeight), 4, o2FillHeight)
-        oxygenTankSprite.draw(ctx, o2TankX + 16, o2TankY + 32, 0)
+        for (let i = 0; i < sub.oxygenTanks; i++) {
+            const o2TankX = hudX + i * 32
+            const o2TankY = hudY
+            const oxygenInTank = sub.oxygen >= i + 1 ? 1 : sub.oxygen < i ? 0 : sub.oxygen - i
+            const o2FillHeight = Math.round(42 * oxygenInTank)
+            ctx.fillStyle = '#0FF'
+            ctx.fillRect(o2TankX + 13, o2TankY + 11 + (42 - o2FillHeight), 4, o2FillHeight)
+            oxygenTankSprite.draw(ctx, o2TankX + 16, o2TankY + 32, 0)
+        }
 
-        const fuelTankX = hudX + 64
-        const fuelTankY = hudY
-        const fuelFillHeight = Math.round(42 * sub.fuel)
-        ctx.fillStyle = '#FF0'
-        ctx.fillRect(fuelTankX + 13, fuelTankY + 11 + (42 - fuelFillHeight), 4, fuelFillHeight)
-        fuelTankSprite.draw(ctx, fuelTankX + 16, fuelTankY + 32, 0)
+        for (let i = 0; i < sub.fuelTanks; i++) {
+            const fuelTankX = hudX + 64 + i * 32
+            const fuelTankY = hudY
+            const fuelInTank = sub.fuel >= i + 1 ? 1 : sub.fuel < i ? 0 : sub.fuel - i
+            const fuelFillHeight = Math.round(42 * fuelInTank)
+            ctx.fillStyle = '#FF0'
+            ctx.fillRect(fuelTankX + 13, fuelTankY + 11 + (42 - fuelFillHeight), 4, fuelFillHeight)
+            fuelTankSprite.draw(ctx, fuelTankX + 16, fuelTankY + 32, 0)
+        }
 
         ctx.font = '16px Arbutus'
         ctx.textAlign = 'center'
