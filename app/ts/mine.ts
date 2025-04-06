@@ -5,11 +5,13 @@ import { getEntitiesOfType, removeEntity } from "./entity.js"
 import { distance } from "./math.js"
 import { Monster } from "./monster.js"
 import { sub } from "./sub.js"
+import { tileMap } from "./tilemap.js"
 
 const COLLISION_RADIUS = 64 // pixels
 const EXPLOSION_TIME = 1 // seconds
 const EXPLOSION_RADIUS = 128 // pixels
 const EXPLOSION_DAMAGE = 1
+const UNTETHER_FLOAT_SPEED = 32
 
 const SPRITE_WIDTH = 64
 const SPRITE_HEIGHT = 64
@@ -20,6 +22,7 @@ const explosionSprite = new SpriteAsset('images/Explosion.png', 64, 64)
 export class Mine extends Monster {
     public exploded: boolean = false
     public explosionTime: number = 0
+    public untethered: boolean = false
 
     constructor(x: number, y: number) {
         super()
@@ -28,12 +31,27 @@ export class Mine extends Monster {
     }
 
     reset(): void {
+        this.x = 0
+        this.y = 0
         this.exploded = false
         this.explosionTime = 0
+        this.untethered = false
     }
 
     update(dt: number): void {
         if (!this.exploded) {
+            if (this.untethered) {
+                this.y -= UNTETHER_FLOAT_SPEED * dt
+                const [fillX, fillY] = tileMap.worldToFillCoords(this.x, this.y)
+                if (tileMap.getFilled(fillX, fillY) || this.y < 0) {
+                    this.explode()
+                }
+            } else {
+                const [belowX, belowY] = tileMap.worldToFillCoords(this.x, this.y + 64)
+                if (!tileMap.getFilled(belowX, belowY)) {
+                    this.untethered = true
+                }
+            }
             const dist = distance(this.x, this.y, sub.x, sub.y)
             if (dist < COLLISION_RADIUS) {
                 this.explode()
