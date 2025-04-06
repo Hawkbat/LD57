@@ -90,7 +90,7 @@ function generate() {
                     if (Math.random() < 0.05 && tileMap.getFilled(x, y + 1 + layer * LAYER_HEIGHT)) {
                         const [mineX, mineY] = tileMap.fillToWorldCoords(x, y + layer * LAYER_HEIGHT)
                         addEntity(new Mine(mineX, mineY))
-                    } else if (Math.random() < 0.02 && layer > 2) {
+                    } else if (Math.random() < 0.05 && layer > 2) {
                         const [anglerX, anglerY] = tileMap.fillToWorldCoords(x, y + layer * LAYER_HEIGHT)
                         addEntity(new Angler(anglerX, anglerY))
                     }

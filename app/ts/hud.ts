@@ -1,12 +1,12 @@
 import { SpriteAsset } from "./assets.js"
-import { DEBUG_TILE_POSITIONS, GAME_HEIGHT, GAME_WIDTH, HUD_WIDTH } from "./constants.js"
+import { GAME_HEIGHT, GAME_WIDTH, HUD_WIDTH } from "./constants.js"
 import { getAverageFPS } from "./engine.js"
 import { Entity } from "./entity.js"
 import { sub } from "./sub.js"
-import { tileMap } from "./tilemap.js"
 
 const oxygenTankSprite = new SpriteAsset('images/Oxygen_Tank.png', 32, 64)
 const fuelTankSprite = new SpriteAsset('images/Fuel_Tank.png', 32, 64)
+const oreSprite = new SpriteAsset('images/Tiles.png', 32, 32)
 
 export class HUD extends Entity {
 
@@ -68,13 +68,20 @@ export class HUD extends Entity {
             ctx.fillText('Fuel Empty!', hudX + HUD_WIDTH / 2, hudY + 256)
         }
 
-        if (DEBUG_TILE_POSITIONS) {
-            const [subFillX, subFillY] = tileMap.worldToFillCoords(sub.x, sub.y)
-            const [subOreX, subOreY] = tileMap.worldToOreCoords(sub.x, sub.y)
-    
+        if (sub.inventory.length === sub.inventorySize) {
+            ctx.fillStyle = '#F00'
+            ctx.fillText('Cargo Full!', hudX + HUD_WIDTH / 2, hudY + 288)
+        } else {
             ctx.fillStyle = '#FFF'
-            ctx.fillText(`${subFillX}, ${subFillY}`, hudX + HUD_WIDTH / 2, hudY + 288)
-            ctx.fillText(`${subOreX}, ${subOreY}`, hudX + HUD_WIDTH / 2, hudY + 320)
+            ctx.fillText(`Cargo ${sub.inventory.length}/${sub.inventorySize}`, hudX + HUD_WIDTH / 2, hudY + 288)
+        }
+
+        for (let i = 0; i < sub.inventory.length; i++) {
+            const oreType = sub.inventory[i]
+            const x = hudX + 16 + (i % 4) * 32
+            const y = hudY + 336 + Math.floor(i / 4) * 32
+            const frame = 99 + oreType
+            oreSprite.draw(ctx, x, y, frame)
         }
 
         ctx.fillStyle = '#FFF'
