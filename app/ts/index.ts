@@ -75,9 +75,9 @@ function generate() {
                         let filled = false
                         const distToCorner = Math.min(distance(x, y, 0, 0), distance(x, y, roomWidth - 1, 0), distance(x, y, 0, roomHeight - 1), distance(x, y, roomWidth - 1, roomHeight - 1))
                         if (distToCorner < 2) {
-                            filled = Math.random() < 0.8
+                            filled = Math.random() < 0.6
                         } else {
-                            filled = Math.random() < 0.2
+                            filled = Math.random() < 0.1
                         }
                         tileMap.setFilled(roomX + x, roomY + y + layer * LAYER_HEIGHT, filled)
                     }
