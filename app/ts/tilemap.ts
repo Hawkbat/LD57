@@ -1,6 +1,6 @@
 import { SpriteAsset } from "./assets.js"
 import { camera } from "./camera.js"
-import { FILLMAP_WIDTH, FILLMAP_HEIGHT, OREMAP_WIDTH, OREMAP_HEIGHT, PLAY_AREA_WIDTH, PLAY_AREA_HEIGHT, DEBUG_TILE_POSITIONS } from "./constants.js"
+import { FILLMAP_WIDTH, FILLMAP_HEIGHT, OREMAP_WIDTH, OREMAP_HEIGHT, PLAY_AREA_WIDTH, PLAY_AREA_HEIGHT, DEBUG_TILE_POSITIONS, OreType } from "./constants.js"
 import { Entity } from "./entity.js"
 
 /*
@@ -86,16 +86,6 @@ const TILE_WIDTH = 64
 const TILE_HEIGHT = 64
 
 const tilesetSprite = new SpriteAsset('images/Tiles.png', 64, 64)
-
-export enum OreType {
-    empty = 0,
-    fuel = 1,
-    oxygen = 2,
-    bronze = 3,
-    silver = 4,
-    gold = 5,
-    diamond = 6,
-}
 
 export class TileMap extends Entity {
     public filled: boolean[] = new Array(FILLMAP_WIDTH * FILLMAP_HEIGHT).fill(true)

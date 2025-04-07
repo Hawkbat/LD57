@@ -1,6 +1,6 @@
 import { SoundAsset, SpriteAsset } from "./assets.js"
 import { camera } from "./camera.js"
-import { WORLD_LIMIT_X } from "./constants.js"
+import { OreType, ORE_SELL_PRICES, WORLD_LIMIT_X } from "./constants.js"
 import { Debris } from "./debris.js"
 import { addEntity, Entity, getEntitiesOfType, removeEntity } from "./entity.js"
 import { emitEvent } from "./events.js"
@@ -8,7 +8,7 @@ import { Fish } from "./fish.js"
 import { ACTIONS } from "./input.js"
 import { distance, moveAngleTowards, moveVectorTowards } from "./math.js"
 import { Pickup } from "./pickup.js"
-import { OreType, tileMap } from "./tilemap.js"
+import { tileMap } from "./tilemap.js"
 
 const RESURFACE_SPEED_BONUS = 200
 const DRAG_FACTOR = 0.95
@@ -87,6 +87,7 @@ export class Sub extends Entity {
     public inventory: OreType[] = []
     public inventorySize: number = INITIAL_INVENTORY_SIZE
     public inventoryPickups: Pickup[] = []
+    public pickupMessages: { message: string, time: number }[] = []
 
     public state: 'play' | 'shop' | 'drown' | 'explode' | 'victory' | 'title' = 'play'
     public playTime: number = 0
@@ -121,6 +122,7 @@ export class Sub extends Entity {
         this.inventory = []
         this.inventorySize = INITIAL_INVENTORY_SIZE
         this.inventoryPickups = []
+        this.pickupMessages = []
         this.state = 'title'
         this.playTime = 0
         this.deathTime = 0
@@ -373,6 +375,19 @@ export class Sub extends Entity {
                     this.deathTime = 0
                 }
             }
+
+            let removingAnyPickupMessage = false
+
+            for (const msg of this.pickupMessages) {
+                msg.time -= dt
+                if (msg.time <= 0) {
+                    removingAnyPickupMessage = true
+                }
+            }
+
+            if (removingAnyPickupMessage) {
+                this.pickupMessages = this.pickupMessages.filter(msg => msg.time > 0)
+            }
     
             for (const pickup of getEntitiesOfType(Pickup)) {
                 if (!pickup.pickingUp) {
@@ -397,13 +412,16 @@ export class Sub extends Entity {
                             if (this.fuel > this.fuelTanks) {
                                 this.fuel = this.fuelTanks
                             }
+                            this.pickupMessages.push({ message: `Acquired fuel`, time: 2 })
                         } else if (pickup.oreType === OreType.oxygen) {
                             this.oxygen += PICKUP_OXYGEN_AMOUNT
                             if (this.oxygen > this.oxygenTanks) {
                                 this.oxygen = this.oxygenTanks
                             }
+                            this.pickupMessages.push({ message: `Acquired oxygen`, time: 2 })
                         } else {
                             this.inventory.push(pickup.oreType)
+                            this.pickupMessages.push({ message: `Acquired ${OreType[pickup.oreType]} - $${ORE_SELL_PRICES[pickup.oreType]}`, time: 2 })
                         }
                         removeEntity(pickup)
                         pickupOreSound.play()
