@@ -214,6 +214,14 @@ export class Sub extends Entity {
                 this.playMusicCallback()
                 this.playMusicCallback = null
             }
+            if (this.moveSoundCallback !== null) {
+                this.moveSoundCallback()
+                this.moveSoundCallback = null
+            }
+            if (this.miningSoundCallback !== null) {
+                this.miningSoundCallback()
+                this.miningSoundCallback = null
+            }
             
             if (ACTIONS.interact.pressed) {
                 ACTIONS.interact.eat()
@@ -227,6 +235,14 @@ export class Sub extends Entity {
             if (this.playMusicCallback !== null) {
                 this.playMusicCallback()
                 this.playMusicCallback = null
+            }
+            if (this.moveSoundCallback !== null) {
+                this.moveSoundCallback()
+                this.moveSoundCallback = null
+            }
+            if (this.miningSoundCallback !== null) {
+                this.miningSoundCallback()
+                this.miningSoundCallback = null
             }
 
             if (ACTIONS.interact.pressed) {
