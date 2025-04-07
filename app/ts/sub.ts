@@ -4,6 +4,7 @@ import { WORLD_LIMIT_X } from "./constants.js"
 import { Debris } from "./debris.js"
 import { addEntity, Entity, getEntitiesOfType, removeEntity } from "./entity.js"
 import { emitEvent } from "./events.js"
+import { Fish } from "./fish.js"
 import { ACTIONS } from "./input.js"
 import { distance, moveAngleTowards, moveVectorTowards } from "./math.js"
 import { Pickup } from "./pickup.js"
@@ -161,8 +162,17 @@ export class Sub extends Entity {
             if (dirY < 0) {
                 resurfaceSpeedBoost = RESURFACE_SPEED_BONUS
             }
-            this.dx += Math.cos(targetRotation) * dt * THRUST_SPEED
-            this.dy += Math.sin(targetRotation) * dt * (THRUST_SPEED + resurfaceSpeedBoost)
+
+            let speed = THRUST_SPEED
+
+            getEntitiesOfType(Fish).forEach(fish => {
+                if (distance(fish.x, fish.y, this.x, this.y) < 32) {
+                    speed /= 2
+                }
+            })
+
+            this.dx += Math.cos(targetRotation) * dt * speed
+            this.dy += Math.sin(targetRotation) * dt * (speed + resurfaceSpeedBoost)
             
             if (this.moveSoundCallback == null) {
                 this.moveSoundCallback = moveSound.play(0.5, true)
