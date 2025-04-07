@@ -16,11 +16,14 @@ const DRILL_SIZE = 28
 const OXYGEN_DRAIN_RATE = 1 / 60 // 2 minutes
 const OXYGEN_REFILL_RATE = 1 / 5 // 5 seconds
 const HURT_INVULN_TIME = 1.0
+const EXPLOSION_TIME = 1 // seconds
+const EXPLOSION_RADIUS = 128 // pixels
 const TURN_SPEED = Math.PI // radians per second
 const MINING_FUEL_DRAIN_RATE = 1 / 15 // 15 seconds
 const REFUEL_MAX_DIST = 64
 const REFUEL_RATE = 1 / 10 // 10 seconds to refuel
-const INITIAL_INVENTORY_SIZE = 12
+const INITIAL_INVENTORY_SIZE = 8
+const INITIAL_MAX_HEALTH = 3
 
 const PICKUP_RADIUS = 64 // pixels
 const PICKUP_OXYGEN_AMOUNT = 0.2 // 20% per pickup
@@ -41,6 +44,7 @@ const ORE_MINING_TIMES: Record<OreType, number> = {
 
 const subSprite = new SpriteAsset('images/Drillship_01.png', 64, 64)
 const subLightSprite = new SpriteAsset('images/Drillship_Light.png', 256, 256)
+const explosionSprite = new SpriteAsset('images/Explosion.png', 64, 64)
 
 const damagedSound = new SoundAsset('sounds/shipdamage.wav')
 const moveSound = new SoundAsset('sounds/shipmove.wav')
@@ -49,6 +53,7 @@ const mineLoopSound = new SoundAsset('sounds/rock break.wav')
 const outOfFuelSound = new SoundAsset('sounds/DrillUnpowered.wav')
 const pickupOreSound = new SoundAsset('sounds/collect.wav')
 const lowOxygenSound = new SoundAsset('sounds/alarm.wav')
+const explosionSound = new SoundAsset('sounds/explosion.wav')
 
 export class Sub extends Entity {
     public x: number = 0
@@ -58,6 +63,8 @@ export class Sub extends Entity {
     public facing: number = 1 // 1 = right, -1 = left
     public rotation: number = 0 // In radians
 
+    public health: number = INITIAL_MAX_HEALTH
+    public maxHealth: number = INITIAL_MAX_HEALTH
     public oxygen: number = 1 // 0-100%, goes higher with multiple tanks
     public oxygenTanks: number = 1
     public fuel: number = 1 // 0-100%, goes higher with multiple tanks
@@ -75,7 +82,8 @@ export class Sub extends Entity {
     public inventorySize: number = INITIAL_INVENTORY_SIZE
     public inventoryPickups: Pickup[] = []
 
-    public menu: 'none' | 'shop' | 'pause' = 'none'
+    public state: 'play' | 'shop' | 'drown' | 'explode' | 'victory' = 'play'
+    public deathTime: number = 0
 
     moveSoundCallback: (() => void) | null = null
     miningSoundCallback: (() => void) | null = null
@@ -87,6 +95,8 @@ export class Sub extends Entity {
         this.dy = 0
         this.facing = 1
         this.rotation = 0
+        this.health = INITIAL_MAX_HEALTH
+        this.maxHealth = INITIAL_MAX_HEALTH
         this.oxygen = 1
         this.oxygenTanks = 1
         this.fuel = 1
@@ -101,14 +111,16 @@ export class Sub extends Entity {
         this.inventory = []
         this.inventorySize = INITIAL_INVENTORY_SIZE
         this.inventoryPickups = []
-        this.menu = 'none'
+        this.state = 'play'
+        this.deathTime = 0
         this.moveSoundCallback = null
+        this.miningSoundCallback = null
     }
 
     update(dt: number): void {
         let dirX = 0
         let dirY = 0
-        if (this.menu === 'none') {
+        if (this.state === 'play') {
             if (ACTIONS.up.held) {
                 dirY += -1
             }
@@ -179,143 +191,148 @@ export class Sub extends Entity {
             }
         }
 
-        const drillX = this.x + dirX * DRILL_SIZE
-        const drillY = this.y + dirY * DRILL_SIZE
-
-        const [fillX, fillY] = tileMap.worldToFillCoords(drillX, drillY)
-        if (tileMap.getFilled(fillX, fillY)) {
-            if (!this.mining || this.miningFillX !== fillX || this.miningFillY !== fillY) {
-                this.mining = true
-                this.miningTime = 0
-                this.miningFillX = fillX
-                this.miningFillY = fillY
-                if (this.fuel > 0) {
-                    mineStartSound.play(0.5)
-                    if (this.miningSoundCallback !== null) {
-                        this.miningSoundCallback()
-                    }
-                    this.miningSoundCallback = mineLoopSound.play(1, true)
-                } else {
-                    outOfFuelSound.play()
-                }
-            }
-            
-            if (this.fuel > 0) {
-                this.fuel -= MINING_FUEL_DRAIN_RATE * dt
-                if (this.fuel < 0) {
-                    this.fuel = 0
-                    outOfFuelSound.play()
-                    if (this.miningSoundCallback !== null) {
-                        this.miningSoundCallback()
-                        this.miningSoundCallback = null
-                    }
-                }
-                this.miningTime += dt
-            }
-
-            if (this.mining) {
-                const oreType = Math.max(
-                    tileMap.getOre(fillX - 1, fillY - 1),
-                    tileMap.getOre(fillX, fillY - 1),
-                    tileMap.getOre(fillX - 1, fillY),
-                    tileMap.getOre(fillX, fillY),
-                )
-                const oreMiningTime = ORE_MINING_TIMES[Number(oreType) as OreType] ?? 0
-                if (this.miningTime * this.miningSpeed >= oreMiningTime) {
-
-                    const debrisCount = 8 + Math.floor(Math.random() * 3)
-                    for (let i = 0; i < debrisCount; i++) {
-                        const [debrisX, debrisY] = tileMap.fillToWorldCoords(fillX, fillY)
-                        addEntity(new Debris(debrisX + Math.random() * 64 - 32, debrisY + Math.random() * 64 - 32))
-                    }
-
-                    for (let oreX = fillX - 1; oreX <= fillX; oreX++) {
-                        for (let oreY = fillY - 1; oreY <= fillY; oreY++) {
-                            const oreType = tileMap.getOre(oreX, oreY)
-                            if (oreType === OreType.empty) continue
-                            let [pickupX, pickupY] = tileMap.oreToWorldCoords(oreX, oreY)
-                            pickupX += Math.random() * 16 - 8
-                            pickupY += Math.random() * 16 - 8
-                            const pickup = new Pickup(pickupX, pickupY, oreType)
-                            addEntity(pickup)
-                            tileMap.setOre(oreX, oreY, OreType.empty)
-                        }
-                    }
-                    tileMap.setFilled(fillX, fillY, false)
-                    this.mining = false
-                    if (this.miningSoundCallback !== null) {
-                        this.miningSoundCallback()
-                        this.miningSoundCallback = null
-                    }
-                }
-            }
+        if (this.state === 'drown' || this.state === 'explode') {
+            this.deathTime += dt
         } else {
-            this.mining = false
-            this.miningTime = 0
-            if (this.miningSoundCallback !== null) {
-                this.miningSoundCallback()
-                this.miningSoundCallback = null
-            }
-        }
-
-        if (this.y <= 0) {
-            this.oxygen += OXYGEN_REFILL_RATE * dt
-            if (this.oxygen > this.oxygenTanks) {
-                this.oxygen = this.oxygenTanks
-            }
-            targetRotation = this.facing < 0 ? Math.PI : 0
-
-            if (Math.abs(this.x) < REFUEL_MAX_DIST) {
-                this.fuel += REFUEL_RATE * dt
-                if (this.fuel > this.fuelTanks) {
-                    this.fuel = this.fuelTanks
-                }
-            }
-        } else {
-            const prevOxygen = this.oxygen
-            this.oxygen -= OXYGEN_DRAIN_RATE * dt
-            if (this.oxygen < LOW_OXYGEN_THRESHOLD && prevOxygen >= LOW_OXYGEN_THRESHOLD) {
-                lowOxygenSound.play()
-            }
-            if (this.oxygen < 0) {
-                this.oxygen = 0
-                // TODO: Handle game over
-            }
-        }
-
-        for (const pickup of getEntitiesOfType(Pickup)) {
-            if (!pickup.pickingUp) {
-                const hasRoom = this.inventory.length + this.inventoryPickups.length < this.inventorySize
-                if (hasRoom || pickup.oreType === OreType.fuel || pickup.oreType === OreType.oxygen) {
-                    const dist = distance(pickup.x, pickup.y, this.x, this.y)
-                    if (dist < PICKUP_RADIUS) {
-                        pickup.pickingUp = true
-                        pickup.pickupTime = 0
-                        this.inventoryPickups.push(pickup)
-                    }
-                }
-            }
-            if (pickup.pickingUp) {
-                [pickup.x, pickup.y] = moveVectorTowards(pickup.x, pickup.y, this.x, this.y, 100 * dt)
-                pickup.pickupTime += dt
-                const dist = distance(pickup.x, pickup.y, this.x, this.y)
-                if (pickup.pickupTime > 1 || dist < 8) {
-                    this.inventoryPickups.splice(this.inventoryPickups.indexOf(pickup), 1)
-                    if (pickup.oreType === OreType.fuel) {
-                        this.fuel += PICKUP_FUEL_AMOUNT
-                        if (this.fuel > this.fuelTanks) {
-                            this.fuel = this.fuelTanks
+            const drillX = this.x + dirX * DRILL_SIZE
+            const drillY = this.y + dirY * DRILL_SIZE
+    
+            const [fillX, fillY] = tileMap.worldToFillCoords(drillX, drillY)
+            if (tileMap.getFilled(fillX, fillY)) {
+                if (!this.mining || this.miningFillX !== fillX || this.miningFillY !== fillY) {
+                    this.mining = true
+                    this.miningTime = 0
+                    this.miningFillX = fillX
+                    this.miningFillY = fillY
+                    if (this.fuel > 0) {
+                        mineStartSound.play(0.5)
+                        if (this.miningSoundCallback !== null) {
+                            this.miningSoundCallback()
                         }
-                    } else if (pickup.oreType === OreType.oxygen) {
-                        this.oxygen += PICKUP_OXYGEN_AMOUNT
-                        if (this.oxygen > this.oxygenTanks) {
-                            this.oxygen = this.oxygenTanks
-                        }
+                        this.miningSoundCallback = mineLoopSound.play(1, true)
                     } else {
-                        this.inventory.push(pickup.oreType)
+                        outOfFuelSound.play()
+                    }
+                }
+                
+                if (this.fuel > 0) {
+                    this.fuel -= MINING_FUEL_DRAIN_RATE * dt
+                    if (this.fuel < 0) {
+                        this.fuel = 0
+                        outOfFuelSound.play()
+                        if (this.miningSoundCallback !== null) {
+                            this.miningSoundCallback()
+                            this.miningSoundCallback = null
+                        }
+                    }
+                    this.miningTime += dt
+                }
+    
+                if (this.mining) {
+                    const oreType = Math.max(
+                        tileMap.getOre(fillX - 1, fillY - 1),
+                        tileMap.getOre(fillX, fillY - 1),
+                        tileMap.getOre(fillX - 1, fillY),
+                        tileMap.getOre(fillX, fillY),
+                    )
+                    const oreMiningTime = ORE_MINING_TIMES[Number(oreType) as OreType] ?? 0
+                    if (this.miningTime * this.miningSpeed >= oreMiningTime) {
+    
+                        const debrisCount = 8 + Math.floor(Math.random() * 3)
+                        for (let i = 0; i < debrisCount; i++) {
+                            const [debrisX, debrisY] = tileMap.fillToWorldCoords(fillX, fillY)
+                            addEntity(new Debris(debrisX + Math.random() * 64 - 32, debrisY + Math.random() * 64 - 32))
+                        }
+    
+                        for (let oreX = fillX - 1; oreX <= fillX; oreX++) {
+                            for (let oreY = fillY - 1; oreY <= fillY; oreY++) {
+                                const oreType = tileMap.getOre(oreX, oreY)
+                                if (oreType === OreType.empty) continue
+                                let [pickupX, pickupY] = tileMap.oreToWorldCoords(oreX, oreY)
+                                pickupX += Math.random() * 16 - 8
+                                pickupY += Math.random() * 16 - 8
+                                const pickup = new Pickup(pickupX, pickupY, oreType)
+                                addEntity(pickup)
+                                tileMap.setOre(oreX, oreY, OreType.empty)
+                            }
+                        }
+                        tileMap.setFilled(fillX, fillY, false)
+                        this.mining = false
+                        if (this.miningSoundCallback !== null) {
+                            this.miningSoundCallback()
+                            this.miningSoundCallback = null
+                        }
+                    }
+                }
+            } else {
+                this.mining = false
+                this.miningTime = 0
+                if (this.miningSoundCallback !== null) {
+                    this.miningSoundCallback()
+                    this.miningSoundCallback = null
+                }
+            }
+    
+            if (this.y <= 0) {
+                this.oxygen += OXYGEN_REFILL_RATE * dt
+                if (this.oxygen > this.oxygenTanks) {
+                    this.oxygen = this.oxygenTanks
+                }
+                targetRotation = this.facing < 0 ? Math.PI : 0
+    
+                if (Math.abs(this.x) < REFUEL_MAX_DIST) {
+                    this.fuel += REFUEL_RATE * dt
+                    if (this.fuel > this.fuelTanks) {
+                        this.fuel = this.fuelTanks
+                    }
+                }
+            } else {
+                const prevOxygen = this.oxygen
+                this.oxygen -= OXYGEN_DRAIN_RATE * dt
+                if (this.oxygen < LOW_OXYGEN_THRESHOLD && prevOxygen >= LOW_OXYGEN_THRESHOLD) {
+                    lowOxygenSound.play()
+                }
+                if (this.oxygen < 0) {
+                    this.oxygen = 0
+                    this.state = 'drown'
+                    this.deathTime = 0
+                }
+            }
+    
+            for (const pickup of getEntitiesOfType(Pickup)) {
+                if (!pickup.pickingUp) {
+                    const hasRoom = this.inventory.length + this.inventoryPickups.length < this.inventorySize
+                    if (hasRoom || pickup.oreType === OreType.fuel || pickup.oreType === OreType.oxygen) {
+                        const dist = distance(pickup.x, pickup.y, this.x, this.y)
+                        if (dist < PICKUP_RADIUS) {
+                            pickup.pickingUp = true
+                            pickup.pickupTime = 0
+                            this.inventoryPickups.push(pickup)
+                        }
+                    }
+                }
+                if (pickup.pickingUp) {
+                    [pickup.x, pickup.y] = moveVectorTowards(pickup.x, pickup.y, this.x, this.y, 100 * dt)
+                    pickup.pickupTime += dt
+                    const dist = distance(pickup.x, pickup.y, this.x, this.y)
+                    if (pickup.pickupTime > 1 || dist < 8) {
+                        this.inventoryPickups.splice(this.inventoryPickups.indexOf(pickup), 1)
+                        if (pickup.oreType === OreType.fuel) {
+                            this.fuel += PICKUP_FUEL_AMOUNT
+                            if (this.fuel > this.fuelTanks) {
+                                this.fuel = this.fuelTanks
+                            }
+                        } else if (pickup.oreType === OreType.oxygen) {
+                            this.oxygen += PICKUP_OXYGEN_AMOUNT
+                            if (this.oxygen > this.oxygenTanks) {
+                                this.oxygen = this.oxygenTanks
+                            }
+                        } else {
+                            this.inventory.push(pickup.oreType)
+                        }
+                        removeEntity(pickup)
                         pickupOreSound.play()
                     }
-                    removeEntity(pickup)
                 }
             }
         }
@@ -340,7 +357,12 @@ export class Sub extends Entity {
     render(ctx: CanvasRenderingContext2D): void {
         const [subX, subY] = camera.fromWorld(this.x, this.y)
 
-        if (subSprite.loaded) {
+        if (this.state === 'explode' && this.deathTime < EXPLOSION_TIME) {
+            const frame = Math.floor(this.deathTime / EXPLOSION_TIME * 8)
+            explosionSprite.draw(ctx, subX, subY, frame)
+        }
+
+        if (subSprite.loaded && this.state !== 'explode') {
             ctx.save()
             if (this.invulnerable && this.invulnerableTime > 0) {
                 if (this.invulnerableTime % 0.1 < 0.05) {
@@ -361,12 +383,23 @@ export class Sub extends Entity {
     override renderLights(ctx: OffscreenCanvasRenderingContext2D): void {
         const [subX, subY] = camera.fromWorld(this.x, this.y)
 
-        ctx.save()
-        ctx.translate(subX, subY)
-        ctx.rotate(this.rotation + (this.facing < 0 ? Math.PI : 0)) // Rotate the sub based on direction
-        ctx.scale(-this.facing, 1) // Flip the sprite based on facing direction
-        subLightSprite.draw(ctx, -96, 0, 0)
-        ctx.restore()
+        if (this.state === 'explode' && this.deathTime < EXPLOSION_TIME) {
+            const [mineX, mineY] = camera.fromWorld(this.x, this.y)
+            const brightness = 0xF - Math.floor(this.deathTime / EXPLOSION_TIME * 0xF)
+            const l = brightness.toString(16)
+            ctx.fillStyle = `#${l}${l}${l}`
+            ctx.beginPath()
+            ctx.arc(mineX, mineY, EXPLOSION_RADIUS, 0, Math.PI * 2)
+            ctx.fill()
+        } else if (this.state !== 'explode') {
+            ctx.save()
+            ctx.translate(subX, subY)
+            ctx.rotate(this.rotation + (this.facing < 0 ? Math.PI : 0)) // Rotate the sub based on direction
+            ctx.scale(-this.facing, 1) // Flip the sprite based on facing direction
+            subLightSprite.draw(ctx, -96, 0, 0)
+            ctx.restore()
+        }
+
     }
 
     hit(dmg: number): void {
@@ -374,7 +407,14 @@ export class Sub extends Entity {
         this.invulnerable = true
         this.invulnerableTime = HURT_INVULN_TIME
         damagedSound.play()
-        // TODO: Handle damage to sub
+        this.health -= dmg
+        if (this.health <= 0) {
+            this.health = 0
+            this.state = 'explode'
+            this.deathTime = 0
+            explosionSound.play()
+            this.invulnerableTime = Infinity
+        }
     }
 }
 
