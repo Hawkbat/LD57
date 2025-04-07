@@ -10,7 +10,6 @@ import { distance, moveAngleTowards, moveVectorTowards } from "./math.js"
 import { Pickup } from "./pickup.js"
 import { OreType, tileMap } from "./tilemap.js"
 
-const THRUST_SPEED = 400
 const RESURFACE_SPEED_BONUS = 200
 const DRAG_FACTOR = 0.95
 const COLLISION_SIZE = 24
@@ -24,6 +23,7 @@ const TURN_SPEED = Math.PI // radians per second
 const MINING_FUEL_DRAIN_RATE = 1 / 15 // 15 seconds
 const REFUEL_MAX_DIST = 64
 const REFUEL_RATE = 1 / 1 // 1 second
+const INITIAL_SPEED = 300
 const INITIAL_INVENTORY_SIZE = 8
 const INITIAL_MAX_HEALTH = 3
 
@@ -68,6 +68,7 @@ export class Sub extends Entity {
     public facing: number = 1 // 1 = right, -1 = left
     public rotation: number = 0 // In radians
 
+    public speed: number = INITIAL_SPEED
     public health: number = INITIAL_MAX_HEALTH
     public maxHealth: number = INITIAL_MAX_HEALTH
     public oxygen: number = 1 // 0-100%, goes higher with multiple tanks
@@ -103,6 +104,7 @@ export class Sub extends Entity {
         this.dy = 0
         this.facing = 1
         this.rotation = 0
+        this.speed = INITIAL_SPEED
         this.health = INITIAL_MAX_HEALTH
         this.maxHealth = INITIAL_MAX_HEALTH
         this.oxygen = 1
@@ -158,12 +160,13 @@ export class Sub extends Entity {
 
         if (dirX !== 0 || dirY !== 0) {
             targetRotation = Math.atan2(dirY, dirX)
+            
             let resurfaceSpeedBoost = 0
             if (dirY < 0) {
                 resurfaceSpeedBoost = RESURFACE_SPEED_BONUS
             }
 
-            let speed = THRUST_SPEED
+            let speed = this.speed
 
             getEntitiesOfType(Fish).forEach(fish => {
                 if (distance(fish.x, fish.y, this.x, this.y) < 32) {
