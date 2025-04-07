@@ -10,6 +10,7 @@ import { hud } from "./hud.js"
 import { distance } from "./math.js"
 import { Mine } from "./mine.js"
 import { shop } from "./shop.js"
+import { Squid } from "./squid.js"
 import { sub } from "./sub.js"
 import { OreType, tileMap } from "./tilemap.js"
 
@@ -92,6 +93,9 @@ function generate() {
                     if (Math.random() < 0.05 && tileMap.getFilled(x, y + 1 + layer * LAYER_HEIGHT)) {
                         const [mineX, mineY] = tileMap.fillToWorldCoords(x, y + layer * LAYER_HEIGHT)
                         addEntity(new Mine(mineX, mineY))
+                    } else if (Math.random() < 0.05 && layer > 0) {
+                        const [squidX, squidY] = tileMap.fillToWorldCoords(x, y + layer * LAYER_HEIGHT)
+                        addEntity(new Squid(squidX, squidY))
                     } else if (Math.random() < 0.05 && layer > 2) {
                         const [anglerX, anglerY] = tileMap.fillToWorldCoords(x, y + layer * LAYER_HEIGHT)
                         addEntity(new Angler(anglerX, anglerY))
