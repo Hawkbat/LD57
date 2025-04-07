@@ -32,24 +32,24 @@ export class Action {
     }
 }
 export const ACTIONS = {
-    up: new Action('Move Up', ['w', 'ArrowUp']),
-    down: new Action('Move Down', ['s', 'ArrowDown']),
-    left: new Action('Move Left', ['a', 'ArrowLeft']),
-    right: new Action('Move Right', ['d', 'ArrowRight']),
-    interact: new Action('Interact', ['e', ' ']),
+    up: new Action('Move Up', ['KeyW', 'ArrowUp']),
+    down: new Action('Move Down', ['KeyS', 'ArrowDown']),
+    left: new Action('Move Left', ['KeyA', 'ArrowLeft']),
+    right: new Action('Move Right', ['KeyD', 'ArrowRight']),
+    interact: new Action('Interact', ['KeyE', 'Space']),
     cancel: new Action('Cancel', ['Escape']),
 };
 export const ACTION_LIST = Object.values(ACTIONS);
 window.addEventListener('keydown', e => {
     for (const action of ACTION_LIST) {
-        if (action.keys.includes(e.key)) {
+        if (action.keys.includes(e.code)) {
             action.changeState(true);
         }
     }
 });
 window.addEventListener('keyup', e => {
     for (const action of ACTION_LIST) {
-        if (action.keys.includes(e.key)) {
+        if (action.keys.includes(e.code)) {
             action.changeState(false);
         }
     }

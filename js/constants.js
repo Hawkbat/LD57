@@ -1,5 +1,5 @@
-export const GAME_WIDTH = 960;
-export const GAME_HEIGHT = 540;
+export const GAME_WIDTH = 948;
+export const GAME_HEIGHT = 533;
 export const HUD_WIDTH = 128;
 export const PLAY_AREA_WIDTH = GAME_WIDTH - HUD_WIDTH;
 export const PLAY_AREA_HEIGHT = GAME_HEIGHT;

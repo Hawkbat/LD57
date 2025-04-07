@@ -6,7 +6,7 @@ import { PLAY_AREA_WIDTH, PLAY_AREA_HEIGHT } from "./constants.js"
 const BUBBLE_VERTICAL_SPEED = 20
 const BUBBLE_LIFETIME = 1.5
 
-const TIME_PER_SPAWN = 0.2
+const TIME_PER_SPAWN = 0.25
 
 const SPRITE_WIDTH = 32
 const SPRITE_HEIGHT = 32

@@ -8,7 +8,7 @@ import { sub } from "./sub.js";
 import { tileMap } from "./tilemap.js";
 const COLLISION_RADIUS = 48; // pixels
 const EXPLOSION_TIME = 1; // seconds
-const EXPLOSION_RADIUS = 128; // pixels
+const EXPLOSION_RADIUS = 96; // pixels
 const EXPLOSION_DAMAGE = 1;
 const UNTETHER_FLOAT_SPEED = 32;
 const SPRITE_WIDTH = 64;

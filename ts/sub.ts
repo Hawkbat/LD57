@@ -32,7 +32,7 @@ const PICKUP_OXYGEN_AMOUNT = 0.2 // 20% per pickup
 const PICKUP_FUEL_AMOUNT = 0.2 // 20% per pickup
 
 const MINING_ANIM_RATE = 0.05 // seconds per frame
-const LOW_OXYGEN_THRESHOLD = 0.3 // 30% oxygen
+const LOW_OXYGEN_THRESHOLD = 1 / 3 // 33% oxygen
 
 const ORE_MINING_TIMES: Record<OreType, number> = {
     [OreType.empty]: 0.25,
@@ -160,7 +160,7 @@ export class Sub extends Entity {
 
         if (dirX !== 0 || dirY !== 0) {
             targetRotation = Math.atan2(dirY, dirX)
-            
+
             let resurfaceSpeedBoost = 0
             if (dirY < 0) {
                 resurfaceSpeedBoost = RESURFACE_SPEED_BONUS
