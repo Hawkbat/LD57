@@ -114,7 +114,7 @@ export class HUD extends Entity {
         }
         rowY += Math.ceil(sub.inventorySize / 4) * 32
         
-        if (sub.oxygen < 0.3) {
+        if (sub.oxygen < 1 / 3) {
             ctx.fillStyle = '#F00'
             ctx.fillText('Oxygen Low!', hudX + HUD_WIDTH / 2, rowY)
             rowY += 32
