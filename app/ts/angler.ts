@@ -22,7 +22,7 @@ const alertSound = new SoundAsset('sounds/angler.wav')
 export class Angler extends Monster {
     public dx: number = 0
     public dy: number = 0
-    public facing: number = 1 // 1 = right, -1 = left
+    public facing: number = Math.random() > 0.5 ? 1 : -1 // 1 = right, -1 = left
     public alerted: boolean = false
     animTime: number = 0
 
@@ -37,7 +37,7 @@ export class Angler extends Monster {
         this.y = 0
         this.dx = 0
         this.dy = 0
-        this.facing = 1
+        this.facing = Math.random() > 0.5 ? 1 : -1
         this.alerted = false
         this.animTime = 0
     }
