@@ -30,7 +30,7 @@ interface ShopItem {
 }
 
 const SHOP_ITEMS: ShopItem[] = [
-    { name: "Increase Hull Durability", price: 40, onPurchase: () => sub.maxHealth++, stock: 5, frame: 0 },
+    { name: "Increase Hull Durability", price: 40, onPurchase: () => (sub.maxHealth++, sub.health++), stock: 5, frame: 0 },
     { name: "Improve Drill Speed (+20%)", price: 25, onPurchase: () => sub.miningSpeed += 0.2, stock: 5, frame: 1 },
     { name: "Extra Oxygen Tank", price: 50, onPurchase: () => sub.oxygenTanks++, stock: 1, frame: 2 },
     { name: "Extra Fuel Tank", price: 30, onPurchase: () => sub.fuelTanks++, stock: 1, frame: 3 },
@@ -207,14 +207,14 @@ export class Shop extends Entity {
             
             upgradesSprite.draw(ctx, x, y, item.frame)
             
-            if (remainingStock === 0) {
-                ctx.fillStyle = '#AAA'
-            }
+            if (remainingStock === 0) ctx.fillStyle = '#AAA'
 
             ctx.textAlign = 'center'
             ctx.fillText(`$${item.price}`, x, y + 28)
             ctx.textAlign = 'right'
             ctx.fillText(`${remainingStock}/${item.stock}`, x + 24, y - 24)
+            
+            ctx.fillStyle = '#FFF'
 
             if (this.inUpgradeMenu && this.upgradeCursorIndex === i) {
                 ctx.textAlign = 'center'
