@@ -8,6 +8,7 @@ export declare class Sub extends Entity {
     dy: number;
     facing: number;
     rotation: number;
+    speed: number;
     health: number;
     maxHealth: number;
     oxygen: number;

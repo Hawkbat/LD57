@@ -19,12 +19,13 @@ const ORE_SELL_PRICES = {
     [OreType.diamond]: 100,
 };
 const SHOP_ITEMS = [
-    { name: "Increase Hull Durability", price: 40, onPurchase: () => (sub.maxHealth++, sub.health++), stock: 5, frame: 0 },
+    { name: "Increase Hull Durability", price: 30, onPurchase: () => (sub.maxHealth++, sub.health++), stock: 5, frame: 0 },
     { name: "Improve Drill Speed (+20%)", price: 25, onPurchase: () => sub.miningSpeed += 0.2, stock: 5, frame: 1 },
     { name: "Extra Oxygen Tank", price: 50, onPurchase: () => (sub.oxygenTanks++, sub.oxygen++), stock: 1, frame: 2 },
-    { name: "Extra Fuel Tank", price: 30, onPurchase: () => (sub.fuelTanks++, sub.fuel++), stock: 1, frame: 3 },
-    { name: "Expand Cargo (+4)", price: 40, onPurchase: () => sub.inventorySize += 4, stock: 3, frame: 4 },
+    { name: "Extra Fuel Tank", price: 40, onPurchase: () => (sub.fuelTanks++, sub.fuel++), stock: 1, frame: 3 },
     { name: "Increase Light Power", price: 35, onPurchase: () => background.lightPower += 0.25, stock: 4, frame: 6 },
+    { name: "Improve Propeller (+50%)", price: 45, onPurchase: () => sub.speed += 100, stock: 3, frame: 7 },
+    { name: "Expand Cargo (+4)", price: 60, onPurchase: () => sub.inventorySize += 4, stock: 3, frame: 4 },
     { name: "Pay Quota", price: 1000, onPurchase: () => sub.state = 'victory', stock: 1, frame: 5 },
 ];
 const buySound = new SoundAsset('sounds/Buy.wav');
@@ -166,7 +167,7 @@ export class Shop extends Entity {
         ctx.fillText(`Sell Cargo (+$${totalSellPrice})`, menuX + 32, rowY);
         rowY += 32;
         ctx.fillStyle = '#FFF';
-        if (sub.health >= sub.maxHealth && this.money > REPAIR_COST)
+        if (sub.health >= sub.maxHealth || this.money < REPAIR_COST)
             ctx.fillStyle = '#AAA';
         ctx.fillText(`Repair Hull ($${REPAIR_COST})`, menuX + 32, rowY);
         rowY += 32;

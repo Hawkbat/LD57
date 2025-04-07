@@ -2,6 +2,7 @@ import { Angler } from "./angler.js";
 import { background } from "./background.js";
 import { banner } from "./banner.js";
 import { boat } from "./boat.js";
+import { bubbles } from "./bubbles.js";
 import { camera } from "./camera.js";
 import { FILLMAP_HEIGHT, FILLMAP_WIDTH } from "./constants.js";
 import { addEntity, clearEntities, resetEntities } from "./entity.js";
@@ -121,6 +122,7 @@ export function startGame() {
     clearEntities();
     addEntity(background);
     addEntity(camera);
+    addEntity(bubbles);
     addEntity(tileMap);
     addEntity(boat);
     addEntity(sub);
