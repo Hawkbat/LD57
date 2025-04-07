@@ -1,4 +1,5 @@
 import { SoundAsset, SpriteAsset } from "./assets.js"
+import { background } from "./background.js"
 import { GAME_HEIGHT, PLAY_AREA_HEIGHT, PLAY_AREA_WIDTH } from "./constants.js"
 import { Entity } from "./entity.js"
 import { ACTIONS } from "./input.js"
@@ -9,7 +10,7 @@ import { OreType } from "./tilemap.js"
 const SHOP_OPEN_DISTANCE = 64 // pixels
 
 const REPAIR_COST = 5
-const UPGRADES_PER_ROW = 3
+const UPGRADES_PER_ROW = 4
 
 const ORE_SELL_PRICES: Record<OreType, number> = {
     [OreType.empty]: 0,
@@ -35,6 +36,7 @@ const SHOP_ITEMS: ShopItem[] = [
     { name: "Extra Oxygen Tank", price: 50, onPurchase: () => (sub.oxygenTanks++, sub.oxygen++), stock: 1, frame: 2 },
     { name: "Extra Fuel Tank", price: 30, onPurchase: () => (sub.fuelTanks++, sub.fuel++), stock: 1, frame: 3 },
     { name: "Expand Cargo (+4)", price: 40, onPurchase: () => sub.inventorySize += 4, stock: 3, frame: 4 },
+    { name: "Increase Light Power", price: 35, onPurchase: () => background.lightPower += 0.25, stock: 4, frame: 6 },
     { name: "Pay Quota", price: 1000, onPurchase: () => sub.state = 'victory', stock: 1, frame: 5 },
 ]
 
@@ -184,8 +186,8 @@ export class Shop extends Entity {
         ctx.fillText(`Sell Cargo (+$${totalSellPrice})`, menuX + 32, rowY)
         rowY += 32
         ctx.fillStyle = '#FFF'
-        if (sub.health >= sub.maxHealth) ctx.fillStyle = '#AAA'
-        ctx.fillText('Repair Hull ($5)', menuX + 32, rowY)
+        if (sub.health >= sub.maxHealth && this.money > REPAIR_COST) ctx.fillStyle = '#AAA'
+        ctx.fillText(`Repair Hull ($${REPAIR_COST})`, menuX + 32, rowY)
         rowY += 32
         ctx.fillStyle = '#FFF'
         ctx.fillText('Exit', menuX + 32, rowY)

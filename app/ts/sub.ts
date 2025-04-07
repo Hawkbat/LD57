@@ -16,14 +16,14 @@ const DRAG_FACTOR = 0.95
 const COLLISION_SIZE = 24
 const DRILL_SIZE = 28
 const OXYGEN_DRAIN_RATE = 1 / 60 // 2 minutes
-const OXYGEN_REFILL_RATE = 1 / 5 // 5 seconds
+const OXYGEN_REFILL_RATE = 1 / 1 // 1 second
 const HURT_INVULN_TIME = 1.0
 const EXPLOSION_TIME = 1 // seconds
 const EXPLOSION_RADIUS = 128 // pixels
 const TURN_SPEED = Math.PI // radians per second
 const MINING_FUEL_DRAIN_RATE = 1 / 15 // 15 seconds
 const REFUEL_MAX_DIST = 64
-const REFUEL_RATE = 1 / 10 // 10 seconds to refuel
+const REFUEL_RATE = 1 / 1 // 1 second
 const INITIAL_INVENTORY_SIZE = 8
 const INITIAL_MAX_HEALTH = 3
 
