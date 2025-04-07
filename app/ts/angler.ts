@@ -4,8 +4,10 @@ import { camera } from "./camera.js"
 import { Monster } from "./monster.js"
 import { PLAY_AREA_WIDTH, PLAY_AREA_HEIGHT } from "./constants.js"
 import { removeEntity } from "./entity.js"
+import { tileMap } from "./tilemap.js"
 
 const SPEED = 300
+const BLOCKED_SPEED = 100
 const DRAG_FACTOR = 0.95
 const DETECTION_RADIUS = 128
 const LOSE_CHASE_RADIUS = 384
@@ -73,8 +75,15 @@ export class Angler extends Monster {
             if (distX > 5) {
                 this.facing = Math.sign(dirX)
             }
-            this.dx += Math.cos(Math.atan2(dirY, dirX)) * dt * SPEED
-            this.dy += Math.sin(Math.atan2(dirY, dirX)) * dt * SPEED
+
+            let speed = SPEED
+            const [fillX, fillY] = tileMap.worldToFillCoords(this.x, this.y)
+            if (tileMap.getFilled(fillX, fillY)) {
+                speed = BLOCKED_SPEED
+            }
+
+            this.dx += Math.cos(Math.atan2(dirY, dirX)) * dt * speed
+            this.dy += Math.sin(Math.atan2(dirY, dirX)) * dt * speed
         }
 
         this.dx *= DRAG_FACTOR
