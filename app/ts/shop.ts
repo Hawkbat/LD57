@@ -32,8 +32,8 @@ interface ShopItem {
 const SHOP_ITEMS: ShopItem[] = [
     { name: "Increase Hull Durability", price: 40, onPurchase: () => (sub.maxHealth++, sub.health++), stock: 5, frame: 0 },
     { name: "Improve Drill Speed (+20%)", price: 25, onPurchase: () => sub.miningSpeed += 0.2, stock: 5, frame: 1 },
-    { name: "Extra Oxygen Tank", price: 50, onPurchase: () => sub.oxygenTanks++, stock: 1, frame: 2 },
-    { name: "Extra Fuel Tank", price: 30, onPurchase: () => sub.fuelTanks++, stock: 1, frame: 3 },
+    { name: "Extra Oxygen Tank", price: 50, onPurchase: () => (sub.oxygenTanks++, sub.oxygen++), stock: 1, frame: 2 },
+    { name: "Extra Fuel Tank", price: 30, onPurchase: () => (sub.fuelTanks++, sub.fuel++), stock: 1, frame: 3 },
     { name: "Expand Cargo (+4)", price: 40, onPurchase: () => sub.inventorySize += 4, stock: 3, frame: 4 },
     { name: "Pay Quota", price: 1000, onPurchase: () => sub.state = 'victory', stock: 1, frame: 5 },
 ]
