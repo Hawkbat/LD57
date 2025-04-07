@@ -3,8 +3,9 @@ import { sub } from "./sub.js"
 import { camera } from "./camera.js"
 import { Monster } from "./monster.js"
 import { PLAY_AREA_WIDTH, PLAY_AREA_HEIGHT } from "./constants.js"
+import { removeEntity } from "./entity.js"
 
-const SPEED = 350
+const SPEED = 300
 const DRAG_FACTOR = 0.95
 const DETECTION_RADIUS = 128
 const LOSE_CHASE_RADIUS = 384
@@ -120,6 +121,6 @@ export class Angler extends Monster {
     }
 
     override hit(damage: number): void {
-        
+        removeEntity(this)
     }
 }
