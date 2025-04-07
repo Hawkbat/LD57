@@ -4,7 +4,7 @@ import { banner } from "./banner.js"
 import { boat } from "./boat.js"
 import { bubbles } from "./bubbles.js"
 import { camera } from "./camera.js"
-import { FILLMAP_HEIGHT, FILLMAP_WIDTH } from "./constants.js"
+import { FILLMAP_HEIGHT, FILLMAP_WIDTH, OreType } from "./constants.js"
 import { addEntity, clearEntities, resetEntities } from "./entity.js"
 import { onEvent } from "./events.js"
 import { Fish } from "./fish.js"
@@ -14,7 +14,7 @@ import { Mine } from "./mine.js"
 import { shop } from "./shop.js"
 import { Squid } from "./squid.js"
 import { sub } from "./sub.js"
-import { OreType, tileMap } from "./tilemap.js"
+import { tileMap } from "./tilemap.js"
 
 const PROC_LAYERS = 8
 const LAYER_WIDTH = FILLMAP_WIDTH

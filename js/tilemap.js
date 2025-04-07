@@ -1,6 +1,6 @@
 import { SpriteAsset } from "./assets.js";
 import { camera } from "./camera.js";
-import { FILLMAP_WIDTH, FILLMAP_HEIGHT, OREMAP_WIDTH, OREMAP_HEIGHT, PLAY_AREA_WIDTH, PLAY_AREA_HEIGHT, DEBUG_TILE_POSITIONS } from "./constants.js";
+import { FILLMAP_WIDTH, FILLMAP_HEIGHT, OREMAP_WIDTH, OREMAP_HEIGHT, PLAY_AREA_WIDTH, PLAY_AREA_HEIGHT, DEBUG_TILE_POSITIONS, OreType } from "./constants.js";
 import { Entity } from "./entity.js";
 /*
 
@@ -82,16 +82,6 @@ const TILE_INDEX_REMAP = [
 const TILE_WIDTH = 64;
 const TILE_HEIGHT = 64;
 const tilesetSprite = new SpriteAsset('images/Tiles.png', 64, 64);
-export var OreType;
-(function (OreType) {
-    OreType[OreType["empty"] = 0] = "empty";
-    OreType[OreType["fuel"] = 1] = "fuel";
-    OreType[OreType["oxygen"] = 2] = "oxygen";
-    OreType[OreType["bronze"] = 3] = "bronze";
-    OreType[OreType["silver"] = 4] = "silver";
-    OreType[OreType["gold"] = 5] = "gold";
-    OreType[OreType["diamond"] = 6] = "diamond";
-})(OreType || (OreType = {}));
 export class TileMap extends Entity {
     filled = new Array(FILLMAP_WIDTH * FILLMAP_HEIGHT).fill(true);
     ores = new Array(OREMAP_WIDTH * OREMAP_HEIGHT).fill(OreType.empty);

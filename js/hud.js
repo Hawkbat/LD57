@@ -110,10 +110,28 @@ export class HUD extends Entity {
         ctx.textAlign = 'right';
         ctx.textBaseline = 'bottom';
         ctx.fillText(`${Math.round(getAverageFPS() * 10) / 10} FPS`, GAME_WIDTH, GAME_HEIGHT);
+        ctx.font = '16px Arbutus';
+        ctx.textAlign = 'left';
+        ctx.textBaseline = 'top';
+        let msgY = 0;
+        for (const msg of sub.pickupMessages) {
+            ctx.fillStyle = '#FFF';
+            ctx.fillText(msg.message, 0, msgY);
+            msgY += 16;
+        }
     }
     renderLights(ctx) {
         ctx.fillStyle = '#FFF';
         ctx.fillRect(ctx.canvas.width - HUD_WIDTH, 0, HUD_WIDTH, ctx.canvas.height);
+        ctx.font = '16px Arbutus';
+        ctx.textAlign = 'left';
+        ctx.textBaseline = 'top';
+        let msgY = 0;
+        for (const msg of sub.pickupMessages) {
+            ctx.fillStyle = '#FFF';
+            ctx.fillText(msg.message, 0, msgY);
+            msgY += 16;
+        }
     }
 }
 export const hud = new HUD();

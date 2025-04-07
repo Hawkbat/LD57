@@ -1,6 +1,6 @@
+import { OreType } from "./constants.js";
 import { Entity } from "./entity.js";
 import { Pickup } from "./pickup.js";
-import { OreType } from "./tilemap.js";
 export declare class Sub extends Entity {
     x: number;
     y: number;
@@ -25,6 +25,10 @@ export declare class Sub extends Entity {
     inventory: OreType[];
     inventorySize: number;
     inventoryPickups: Pickup[];
+    pickupMessages: {
+        message: string;
+        time: number;
+    }[];
     state: 'play' | 'shop' | 'drown' | 'explode' | 'victory' | 'title';
     playTime: number;
     deathTime: number;

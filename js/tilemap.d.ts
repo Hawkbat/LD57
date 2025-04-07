@@ -1,13 +1,5 @@
+import { OreType } from "./constants.js";
 import { Entity } from "./entity.js";
-export declare enum OreType {
-    empty = 0,
-    fuel = 1,
-    oxygen = 2,
-    bronze = 3,
-    silver = 4,
-    gold = 5,
-    diamond = 6
-}
 export declare class TileMap extends Entity {
     filled: boolean[];
     ores: OreType[];

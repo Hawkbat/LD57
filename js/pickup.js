@@ -1,7 +1,7 @@
 import { SpriteAsset } from "./assets.js";
 import { camera } from "./camera.js";
+import { OreType } from "./constants.js";
 import { Entity } from "./entity.js";
-import { OreType } from "./tilemap.js";
 const pickupSprite = new SpriteAsset('images/Tiles.png', 32, 32);
 export class Pickup extends Entity {
     x = 0;

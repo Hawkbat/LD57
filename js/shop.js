@@ -1,23 +1,13 @@
 import { SoundAsset, SpriteAsset } from "./assets.js";
 import { background } from "./background.js";
-import { GAME_HEIGHT, PLAY_AREA_HEIGHT, PLAY_AREA_WIDTH } from "./constants.js";
+import { GAME_HEIGHT, ORE_SELL_PRICES, PLAY_AREA_HEIGHT, PLAY_AREA_WIDTH } from "./constants.js";
 import { Entity } from "./entity.js";
 import { ACTIONS } from "./input.js";
 import { distance } from "./math.js";
 import { sub } from "./sub.js";
-import { OreType } from "./tilemap.js";
 const SHOP_OPEN_DISTANCE = 64; // pixels
 const REPAIR_COST = 5;
 const UPGRADES_PER_ROW = 4;
-const ORE_SELL_PRICES = {
-    [OreType.empty]: 0,
-    [OreType.fuel]: 0,
-    [OreType.oxygen]: 0,
-    [OreType.bronze]: 5,
-    [OreType.silver]: 15,
-    [OreType.gold]: 40,
-    [OreType.diamond]: 100,
-};
 const SHOP_ITEMS = [
     { name: "Increase Hull Durability", price: 25, onPurchase: () => (sub.maxHealth++, sub.health++), stock: 5, frame: 0 },
     { name: "Improve Drill Speed (+20%)", price: 30, onPurchase: () => sub.miningSpeed += 0.2, stock: 5, frame: 1 },

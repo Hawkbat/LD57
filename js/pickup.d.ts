@@ -1,5 +1,5 @@
+import { OreType } from "./constants.js";
 import { Entity } from "./entity.js";
-import { OreType } from "./tilemap.js";
 export declare class Pickup extends Entity {
     x: number;
     y: number;
