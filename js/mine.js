@@ -101,8 +101,10 @@ export class Mine extends Monster {
             return;
         this.exploded = true;
         this.explosionTime = 0;
-        explosionSound.play(0.5);
         const dist = distance(this.x, this.y, sub.x, sub.y);
+        const volume = Math.max(0, 1 - dist / 512);
+        if (volume > 0)
+            explosionSound.play(volume);
         if (dist < EXPLOSION_RADIUS) {
             sub.hit(EXPLOSION_DAMAGE);
         }

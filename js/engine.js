@@ -42,7 +42,7 @@ export function runEngine() {
         const tick = (time) => {
             if (lastTime === -1)
                 lastTime = time;
-            const deltaTime = (time - lastTime) / 1000;
+            const deltaTime = Math.min((time - lastTime) / 1000, 0.5);
             lastTime = time;
             const fps = 1 / deltaTime;
             fpsValues.push(fps);

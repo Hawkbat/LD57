@@ -2,6 +2,7 @@ import { SpriteAsset } from "./assets.js"
 import { GAME_HEIGHT, GAME_WIDTH, HUD_WIDTH } from "./constants.js"
 import { getAverageFPS } from "./engine.js"
 import { Entity } from "./entity.js"
+import { shop } from "./shop.js"
 import { sub } from "./sub.js"
 
 const healthIconSprite = new SpriteAsset('images/HealthSub.png', 32, 32)
@@ -89,6 +90,9 @@ export class HUD extends Entity {
         ctx.font = '12px Arbutus'
         ctx.fillText('LONGITUDE', hudX + HUD_WIDTH / 2, rowY)
         ctx.font = '16px Arbutus'
+        rowY += 32
+
+        ctx.fillText(`Money: $${shop.money}`, hudX + HUD_WIDTH / 2, rowY)
         rowY += 32
 
         if (sub.inventory.length === sub.inventorySize) {

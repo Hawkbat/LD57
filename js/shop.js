@@ -1,4 +1,5 @@
 import { SoundAsset, SpriteAsset } from "./assets.js";
+import { background } from "./background.js";
 import { GAME_HEIGHT, PLAY_AREA_HEIGHT, PLAY_AREA_WIDTH } from "./constants.js";
 import { Entity } from "./entity.js";
 import { ACTIONS } from "./input.js";
@@ -7,22 +8,23 @@ import { sub } from "./sub.js";
 import { OreType } from "./tilemap.js";
 const SHOP_OPEN_DISTANCE = 64; // pixels
 const REPAIR_COST = 5;
-const UPGRADES_PER_ROW = 3;
+const UPGRADES_PER_ROW = 4;
 const ORE_SELL_PRICES = {
     [OreType.empty]: 0,
     [OreType.fuel]: 0,
     [OreType.oxygen]: 0,
     [OreType.bronze]: 5,
-    [OreType.silver]: 20,
-    [OreType.gold]: 50,
+    [OreType.silver]: 15,
+    [OreType.gold]: 40,
     [OreType.diamond]: 100,
 };
 const SHOP_ITEMS = [
-    { name: "Increase Hull Durability", price: 40, onPurchase: () => sub.maxHealth++, stock: 5, frame: 0 },
+    { name: "Increase Hull Durability", price: 40, onPurchase: () => (sub.maxHealth++, sub.health++), stock: 5, frame: 0 },
     { name: "Improve Drill Speed (+20%)", price: 25, onPurchase: () => sub.miningSpeed += 0.2, stock: 5, frame: 1 },
-    { name: "Extra Oxygen Tank", price: 50, onPurchase: () => sub.oxygenTanks++, stock: 1, frame: 2 },
-    { name: "Extra Fuel Tank", price: 30, onPurchase: () => sub.fuelTanks++, stock: 1, frame: 3 },
+    { name: "Extra Oxygen Tank", price: 50, onPurchase: () => (sub.oxygenTanks++, sub.oxygen++), stock: 1, frame: 2 },
+    { name: "Extra Fuel Tank", price: 30, onPurchase: () => (sub.fuelTanks++, sub.fuel++), stock: 1, frame: 3 },
     { name: "Expand Cargo (+4)", price: 40, onPurchase: () => sub.inventorySize += 4, stock: 3, frame: 4 },
+    { name: "Increase Light Power", price: 35, onPurchase: () => background.lightPower += 0.25, stock: 4, frame: 6 },
     { name: "Pay Quota", price: 1000, onPurchase: () => sub.state = 'victory', stock: 1, frame: 5 },
 ];
 const buySound = new SoundAsset('sounds/Buy.wav');
@@ -164,9 +166,9 @@ export class Shop extends Entity {
         ctx.fillText(`Sell Cargo (+$${totalSellPrice})`, menuX + 32, rowY);
         rowY += 32;
         ctx.fillStyle = '#FFF';
-        if (sub.health >= sub.maxHealth)
+        if (sub.health >= sub.maxHealth && this.money > REPAIR_COST)
             ctx.fillStyle = '#AAA';
-        ctx.fillText('Repair Hull ($5)', menuX + 32, rowY);
+        ctx.fillText(`Repair Hull ($${REPAIR_COST})`, menuX + 32, rowY);
         rowY += 32;
         ctx.fillStyle = '#FFF';
         ctx.fillText('Exit', menuX + 32, rowY);
@@ -183,13 +185,13 @@ export class Shop extends Entity {
             const x = menuX + 256 + (i % UPGRADES_PER_ROW) * 64;
             const y = menuY + 64 + Math.floor(i / UPGRADES_PER_ROW) * 72;
             upgradesSprite.draw(ctx, x, y, item.frame);
-            if (remainingStock === 0) {
+            if (remainingStock === 0)
                 ctx.fillStyle = '#AAA';
-            }
             ctx.textAlign = 'center';
             ctx.fillText(`$${item.price}`, x, y + 28);
             ctx.textAlign = 'right';
             ctx.fillText(`${remainingStock}/${item.stock}`, x + 24, y - 24);
+            ctx.fillStyle = '#FFF';
             if (this.inUpgradeMenu && this.upgradeCursorIndex === i) {
                 ctx.textAlign = 'center';
                 ctx.fillText('>', x - 28, y - 4);

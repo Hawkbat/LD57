@@ -30,7 +30,7 @@ export class Banner extends Entity {
 
         if (sub.state === 'title') {
             ctx.fillStyle = '#FFF'
-            ctx.fillText('Game Title', bannerX, bannerY)
+            ctx.fillText('Abyss Miner', bannerX, bannerY)
             gameOver = true
         } else if (sub.state === 'drown') {
             ctx.fillStyle = '#0AF'

@@ -2,12 +2,13 @@ import { camera } from "./camera.js"
 import { PLAY_AREA_HEIGHT, PLAY_AREA_WIDTH } from "./constants.js"
 import { Entity } from "./entity.js"
 
-const LIGHT_FALLOFF_DISTANCE = 256
+const LIGHT_FALLOFF_DISTANCE = 128
 
 export class Background extends Entity {
+    public lightPower: number = 1
 
     reset(): void {
-
+        this.lightPower = 1
     }
 
     update(dt: number): void {
@@ -26,7 +27,7 @@ export class Background extends Entity {
     }
 
     override renderLights(ctx: OffscreenCanvasRenderingContext2D): void {
-        const baseBrightness = 0xF - Math.min(0xF, Math.floor(camera.y / LIGHT_FALLOFF_DISTANCE))
+        const baseBrightness = 0xF - Math.min(0xF, Math.floor(camera.y / this.lightPower / LIGHT_FALLOFF_DISTANCE))
         const l = baseBrightness.toString(16)
 
         ctx.fillStyle = `#${l}${l}${l}`

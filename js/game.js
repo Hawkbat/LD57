@@ -6,10 +6,12 @@ import { camera } from "./camera.js";
 import { FILLMAP_HEIGHT, FILLMAP_WIDTH } from "./constants.js";
 import { addEntity, clearEntities, resetEntities } from "./entity.js";
 import { onEvent } from "./events.js";
+import { Fish } from "./fish.js";
 import { hud } from "./hud.js";
 import { distance } from "./math.js";
 import { Mine } from "./mine.js";
 import { shop } from "./shop.js";
+import { Squid } from "./squid.js";
 import { sub } from "./sub.js";
 import { OreType, tileMap } from "./tilemap.js";
 const PROC_LAYERS = 8;
@@ -77,19 +79,24 @@ function generate() {
                     }
                 }
             }
-            // Spawn monsters
-            for (let x = 0; x < LAYER_WIDTH; x++) {
-                for (let y = 0; y < LAYER_HEIGHT; y++) {
-                    if (tileMap.getFilled(x, y + layer * LAYER_HEIGHT))
-                        continue;
-                    if (Math.random() < 0.05 && tileMap.getFilled(x, y + 1 + layer * LAYER_HEIGHT)) {
-                        const [mineX, mineY] = tileMap.fillToWorldCoords(x, y + layer * LAYER_HEIGHT);
-                        addEntity(new Mine(mineX, mineY));
-                    }
-                    else if (Math.random() < 0.05 && layer > 2) {
-                        const [anglerX, anglerY] = tileMap.fillToWorldCoords(x, y + layer * LAYER_HEIGHT);
-                        addEntity(new Angler(anglerX, anglerY));
-                    }
+        }
+        // Spawn monsters
+        for (let x = 0; x < LAYER_WIDTH; x++) {
+            for (let y = 0; y < LAYER_HEIGHT; y++) {
+                if (tileMap.getFilled(x, y + layer * LAYER_HEIGHT))
+                    continue;
+                const [entityX, entityY] = tileMap.fillToWorldCoords(x, y + layer * LAYER_HEIGHT);
+                if (Math.random() < 0.05 && tileMap.getFilled(x, y + 1 + layer * LAYER_HEIGHT)) {
+                    addEntity(new Mine(entityX, entityY));
+                }
+                else if (Math.random() < 0.05 && layer > 0) {
+                    addEntity(new Squid(entityX, entityY));
+                }
+                else if (Math.random() < 0.05 && layer > 2) {
+                    addEntity(new Angler(entityX, entityY));
+                }
+                else if (Math.random() < 0.08 && y + layer * LAYER_HEIGHT > 2) {
+                    addEntity(new Fish(entityX, entityY));
                 }
             }
         }

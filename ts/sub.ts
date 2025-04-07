@@ -4,6 +4,7 @@ import { WORLD_LIMIT_X } from "./constants.js"
 import { Debris } from "./debris.js"
 import { addEntity, Entity, getEntitiesOfType, removeEntity } from "./entity.js"
 import { emitEvent } from "./events.js"
+import { Fish } from "./fish.js"
 import { ACTIONS } from "./input.js"
 import { distance, moveAngleTowards, moveVectorTowards } from "./math.js"
 import { Pickup } from "./pickup.js"
@@ -15,14 +16,14 @@ const DRAG_FACTOR = 0.95
 const COLLISION_SIZE = 24
 const DRILL_SIZE = 28
 const OXYGEN_DRAIN_RATE = 1 / 60 // 2 minutes
-const OXYGEN_REFILL_RATE = 1 / 5 // 5 seconds
+const OXYGEN_REFILL_RATE = 1 / 1 // 1 second
 const HURT_INVULN_TIME = 1.0
 const EXPLOSION_TIME = 1 // seconds
 const EXPLOSION_RADIUS = 128 // pixels
 const TURN_SPEED = Math.PI // radians per second
 const MINING_FUEL_DRAIN_RATE = 1 / 15 // 15 seconds
 const REFUEL_MAX_DIST = 64
-const REFUEL_RATE = 1 / 10 // 10 seconds to refuel
+const REFUEL_RATE = 1 / 1 // 1 second
 const INITIAL_INVENTORY_SIZE = 8
 const INITIAL_MAX_HEALTH = 3
 
@@ -161,8 +162,17 @@ export class Sub extends Entity {
             if (dirY < 0) {
                 resurfaceSpeedBoost = RESURFACE_SPEED_BONUS
             }
-            this.dx += Math.cos(targetRotation) * dt * THRUST_SPEED
-            this.dy += Math.sin(targetRotation) * dt * (THRUST_SPEED + resurfaceSpeedBoost)
+
+            let speed = THRUST_SPEED
+
+            getEntitiesOfType(Fish).forEach(fish => {
+                if (distance(fish.x, fish.y, this.x, this.y) < 32) {
+                    speed /= 2
+                }
+            })
+
+            this.dx += Math.cos(targetRotation) * dt * speed
+            this.dy += Math.sin(targetRotation) * dt * (speed + resurfaceSpeedBoost)
             
             if (this.moveSoundCallback == null) {
                 this.moveSoundCallback = moveSound.play(0.5, true)
