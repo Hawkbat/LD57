@@ -63,7 +63,7 @@ export class Shop extends Entity {
     }
 
     override update(dt: number): void {
-        if (sub.state !== 'shop' && ACTIONS.interact.pressed) {
+        if (sub.state === 'play' && ACTIONS.interact.pressed) {
             const dist = distance(0, 0, sub.x, sub.y)
             if (dist < SHOP_OPEN_DISTANCE) {
                 sub.state = 'shop'
@@ -89,7 +89,9 @@ export class Shop extends Entity {
                     moveCursorSound.play()
                 }
                 if (ACTIONS.interact.pressed) {
-                    const item = SHOP_ITEMS[this.menuCursorIndex - 1]
+                    ACTIONS.interact.eat()
+                    
+                    const item = SHOP_ITEMS[this.upgradeCursorIndex]
                     const remainingStock = item.stock - this.purchases.filter(p => p === item).length
                     if (remainingStock > 0 && item.price <= this.money) {
                         this.money -= item.price
@@ -113,6 +115,8 @@ export class Shop extends Entity {
                     moveCursorSound.play()
                 }
                 if (ACTIONS.interact.pressed) {
+                    ACTIONS.interact.eat()
+                    
                     if (this.menuCursorIndex === 0) {
                         this.inUpgradeMenu = true
                         this.upgradeCursorIndex = 0
@@ -149,7 +153,7 @@ export class Shop extends Entity {
         ctx.textRendering = 'optimizeSpeed'
 
         if (sub.state !== 'shop') {
-            if (distance(0, 0, sub.x, sub.y) < SHOP_OPEN_DISTANCE) {
+            if (sub.state === 'play' && distance(0, 0, sub.x, sub.y) < SHOP_OPEN_DISTANCE) {
                 ctx.fillStyle = '#FFF'
                 ctx.fillText('Press E or Spacebar to open shop', 0, GAME_HEIGHT - 32)
             }
@@ -187,7 +191,9 @@ export class Shop extends Entity {
         ctx.fillText('Exit', menuX + 32, rowY)
         rowY += 32
         
-        ctx.fillText('>', menuX + 8, menuY + 72 + this.menuCursorIndex * 32)
+        if (!this.inUpgradeMenu) {
+            ctx.fillText('>', menuX + 8, menuY + 72 + this.menuCursorIndex * 32)
+        }
 
         ctx.fillStyle = '#FFF'
         ctx.font = '12px Arbutus'
@@ -227,7 +233,7 @@ export class Shop extends Entity {
         
         ctx.fillStyle = '#CCC'
         ctx.fillText('E or Spacebar: Select', menuX + 8, menuY + menuHeight - 64)
-        ctx.fillText('ESC: Exit', menuX + 8, menuY + menuHeight - 32)
+        ctx.fillText('Escape: Exit', menuX + 8, menuY + menuHeight - 32)
     }
 
 }

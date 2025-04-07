@@ -3,6 +3,7 @@ import { camera } from "./camera.js"
 import { WORLD_LIMIT_X } from "./constants.js"
 import { Debris } from "./debris.js"
 import { addEntity, Entity, getEntitiesOfType, removeEntity } from "./entity.js"
+import { emitEvent } from "./events.js"
 import { ACTIONS } from "./input.js"
 import { distance, moveAngleTowards, moveVectorTowards } from "./math.js"
 import { Pickup } from "./pickup.js"
@@ -55,6 +56,9 @@ const pickupOreSound = new SoundAsset('sounds/collect.wav')
 const lowOxygenSound = new SoundAsset('sounds/alarm.wav')
 const explosionSound = new SoundAsset('sounds/explosion.wav')
 
+const playMusic = new SoundAsset('music/Treasure of the depths.mp3')
+const victoryMusic = new SoundAsset('music/Victory Jingle.mp3')
+
 export class Sub extends Entity {
     public x: number = 0
     public y: number = 0
@@ -82,11 +86,14 @@ export class Sub extends Entity {
     public inventorySize: number = INITIAL_INVENTORY_SIZE
     public inventoryPickups: Pickup[] = []
 
-    public state: 'play' | 'shop' | 'drown' | 'explode' | 'victory' = 'play'
+    public state: 'play' | 'shop' | 'drown' | 'explode' | 'victory' | 'title' = 'play'
+    public playTime: number = 0
     public deathTime: number = 0
 
     moveSoundCallback: (() => void) | null = null
     miningSoundCallback: (() => void) | null = null
+    playMusicCallback: (() => void) | null = null
+    victoryMusicCallback: (() => void) | null = null
 
     reset(): void {
         this.x = 0
@@ -111,10 +118,13 @@ export class Sub extends Entity {
         this.inventory = []
         this.inventorySize = INITIAL_INVENTORY_SIZE
         this.inventoryPickups = []
-        this.state = 'play'
+        this.state = 'title'
+        this.playTime = 0
         this.deathTime = 0
         this.moveSoundCallback = null
         this.miningSoundCallback = null
+        this.playMusicCallback = null
+        this.victoryMusicCallback = null
     }
 
     update(dt: number): void {
@@ -191,9 +201,45 @@ export class Sub extends Entity {
             }
         }
 
-        if (this.state === 'drown' || this.state === 'explode') {
+        if (this.state === 'title') {
+            if (ACTIONS.interact.pressed) {
+                ACTIONS.interact.eat()
+
+                this.state = 'play'
+                this.playMusicCallback = playMusic.play(1, true)
+            }
+        } else if (this.state === 'drown' || this.state === 'explode') {
             this.deathTime += dt
-        } else {
+            if (this.playMusicCallback !== null) {
+                this.playMusicCallback()
+                this.playMusicCallback = null
+            }
+            
+            if (ACTIONS.interact.pressed) {
+                ACTIONS.interact.eat()
+
+                emitEvent('restart-game')
+            }
+        } else if (this.state === 'victory') {
+            if (this.victoryMusicCallback === null) {
+                this.victoryMusicCallback = victoryMusic.play()
+            }
+            if (this.playMusicCallback !== null) {
+                this.playMusicCallback()
+                this.playMusicCallback = null
+            }
+
+            if (ACTIONS.interact.pressed) {
+                ACTIONS.interact.eat()
+
+                this.victoryMusicCallback()
+                this.victoryMusicCallback = null
+
+                emitEvent('restart-game')
+            }
+        } else if (this.state === 'play') {
+            this.playTime += dt
+
             const drillX = this.x + dirX * DRILL_SIZE
             const drillY = this.y + dirY * DRILL_SIZE
     
@@ -362,7 +408,7 @@ export class Sub extends Entity {
             explosionSprite.draw(ctx, subX, subY, frame)
         }
 
-        if (subSprite.loaded && this.state !== 'explode') {
+        if (subSprite.image && this.state !== 'explode') {
             ctx.save()
             if (this.invulnerable && this.invulnerableTime > 0) {
                 if (this.invulnerableTime % 0.1 < 0.05) {
