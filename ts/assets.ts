@@ -12,22 +12,30 @@ export function setVolume(value: number) {
 }
 
 export class SoundAsset {
+    public url: string
     public buffer: AudioBuffer | null = null
-    public loaded: boolean = false
+
+    static promiseCache = new Map<string, Promise<AudioBuffer>>()
 
     constructor(url: string) {
-        fetch(url)
+        this.url = url
+        if (SoundAsset.promiseCache.has(url)) {
+            SoundAsset.promiseCache.get(url)?.then(buffer => {
+                this.buffer = buffer
+            })
+            return
+        }
+        SoundAsset.promiseCache.set(url, fetch(url)
             .then(response => response.arrayBuffer())
             .then(data => audioContext.decodeAudioData(data))
             .then(buffer => {
                 this.buffer = buffer
-                this.loaded = true
-            })
-            .catch(error => console.error('Error loading sound:', error))
+                return buffer
+            }))
     }
 
     public play(volume = 1, loop = false): () => void {
-        if (this.loaded && this.buffer) {
+        if (this.buffer) {
             const source = audioContext.createBufferSource()
             source.buffer = this.buffer
             source.loop = loop
@@ -41,33 +49,61 @@ export class SoundAsset {
                 source.disconnect()
                 gainNode.disconnect()
             }
+        } else {
+            let shouldStop = false
+            let cleanupFunc: (() => void) | null = null
+            SoundAsset.promiseCache.get(this.url)?.then(buffer => {
+                this.buffer = buffer
+                if (shouldStop) return
+                cleanupFunc = this.play(volume, loop)
+            })
+            return () => {
+                shouldStop = true
+                if (cleanupFunc) {
+                    cleanupFunc()
+                }
+            }
         }
-        return () => {} // No-op function if not loaded
     }
 }
 
 export class SpriteAsset {
-    public image: HTMLImageElement
-    public loaded: boolean = false
+    public url: string
+    public image: HTMLImageElement | null = null
     public tileWidth: number
     public tileHeight: number
     public width: number = 0
     public height: number = 0
 
+    static promiseCache = new Map<string, Promise<HTMLImageElement>>()
+
     constructor(url: string, tileWidth: number, tileHeight: number) {
+        this.url = url
         this.tileWidth = tileWidth
         this.tileHeight = tileHeight
-        this.image = new Image()
-        this.image.onload = () => {
-            this.loaded = true
-            this.width = this.image.width
-            this.height = this.image.height
+        if (SpriteAsset.promiseCache.has(url)) {
+            SpriteAsset.promiseCache.get(url)?.then(image => {
+                this.image = image
+                this.width = image.width
+                this.height = image.height
+            })
+            return
         }
-        this.image.src = url
+
+        SpriteAsset.promiseCache.set(url, new Promise<HTMLImageElement>((resolve) => {
+            const image = new Image()
+            image.onload = () => {
+                this.image = image
+                this.width = image.width
+                this.height = image.height
+                resolve(image)
+            }
+            image.src = url
+        }))
     }
 
     public draw(ctx: CanvasRenderingContext2D | OffscreenCanvasRenderingContext2D, x: number, y: number, frame: number) {
-        if (this.loaded) {
+        if (this.image) {
             const cols = Math.floor(this.width / this.tileWidth)
             const rows = Math.floor(this.height / this.tileHeight)
             const col = frame % cols

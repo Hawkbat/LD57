@@ -4,9 +4,12 @@ interface ShopItem {
     price: number;
     onPurchase: () => void;
     stock: number;
+    frame: number;
 }
 export declare class Shop extends Entity {
-    cursorIndex: number;
+    menuCursorIndex: number;
+    upgradeCursorIndex: number;
+    inUpgradeMenu: boolean;
     purchases: ShopItem[];
     money: number;
     get sortOrder(): number;

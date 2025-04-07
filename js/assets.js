@@ -8,20 +8,27 @@ export function setVolume(value) {
     mainVolume.gain.setValueAtTime(value, audioContext.currentTime);
 }
 export class SoundAsset {
+    url;
     buffer = null;
-    loaded = false;
+    static promiseCache = new Map();
     constructor(url) {
-        fetch(url)
+        this.url = url;
+        if (SoundAsset.promiseCache.has(url)) {
+            SoundAsset.promiseCache.get(url)?.then(buffer => {
+                this.buffer = buffer;
+            });
+            return;
+        }
+        SoundAsset.promiseCache.set(url, fetch(url)
             .then(response => response.arrayBuffer())
             .then(data => audioContext.decodeAudioData(data))
             .then(buffer => {
             this.buffer = buffer;
-            this.loaded = true;
-        })
-            .catch(error => console.error('Error loading sound:', error));
+            return buffer;
+        }));
     }
     play(volume = 1, loop = false) {
-        if (this.loaded && this.buffer) {
+        if (this.buffer) {
             const source = audioContext.createBufferSource();
             source.buffer = this.buffer;
             source.loop = loop;
@@ -36,29 +43,57 @@ export class SoundAsset {
                 gainNode.disconnect();
             };
         }
-        return () => { }; // No-op function if not loaded
+        else {
+            let shouldStop = false;
+            let cleanupFunc = null;
+            SoundAsset.promiseCache.get(this.url)?.then(buffer => {
+                this.buffer = buffer;
+                if (shouldStop)
+                    return;
+                cleanupFunc = this.play(volume, loop);
+            });
+            return () => {
+                shouldStop = true;
+                if (cleanupFunc) {
+                    cleanupFunc();
+                }
+            };
+        }
     }
 }
 export class SpriteAsset {
-    image;
-    loaded = false;
+    url;
+    image = null;
     tileWidth;
     tileHeight;
     width = 0;
     height = 0;
+    static promiseCache = new Map();
     constructor(url, tileWidth, tileHeight) {
+        this.url = url;
         this.tileWidth = tileWidth;
         this.tileHeight = tileHeight;
-        this.image = new Image();
-        this.image.onload = () => {
-            this.loaded = true;
-            this.width = this.image.width;
-            this.height = this.image.height;
-        };
-        this.image.src = url;
+        if (SpriteAsset.promiseCache.has(url)) {
+            SpriteAsset.promiseCache.get(url)?.then(image => {
+                this.image = image;
+                this.width = image.width;
+                this.height = image.height;
+            });
+            return;
+        }
+        SpriteAsset.promiseCache.set(url, new Promise((resolve) => {
+            const image = new Image();
+            image.onload = () => {
+                this.image = image;
+                this.width = image.width;
+                this.height = image.height;
+                resolve(image);
+            };
+            image.src = url;
+        }));
     }
     draw(ctx, x, y, frame) {
-        if (this.loaded) {
+        if (this.image) {
             const cols = Math.floor(this.width / this.tileWidth);
             const rows = Math.floor(this.height / this.tileHeight);
             const col = frame % cols;

@@ -26,6 +26,10 @@ export class Action {
             this.released = false;
         }
     }
+    eat() {
+        this.pressed = false;
+        this.released = false;
+    }
 }
 export const ACTIONS = {
     up: new Action('Move Up', ['w', 'ArrowUp']),

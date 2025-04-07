@@ -1,9 +1,11 @@
 import { Angler } from "./angler.js";
 import { background } from "./background.js";
+import { banner } from "./banner.js";
 import { boat } from "./boat.js";
 import { camera } from "./camera.js";
 import { FILLMAP_HEIGHT, FILLMAP_WIDTH } from "./constants.js";
 import { addEntity, clearEntities, resetEntities } from "./entity.js";
+import { onEvent } from "./events.js";
 import { hud } from "./hud.js";
 import { distance } from "./math.js";
 import { Mine } from "./mine.js";
@@ -117,7 +119,11 @@ export function startGame() {
     addEntity(sub);
     addEntity(hud);
     addEntity(shop);
+    addEntity(banner);
     resetEntities();
     generate();
 }
+onEvent('restart-game', () => {
+    startGame();
+});
 //# sourceMappingURL=game.js.map

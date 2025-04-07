@@ -7,7 +7,7 @@ import { Monster } from "./monster.js"
 import { sub } from "./sub.js"
 import { tileMap } from "./tilemap.js"
 
-const COLLISION_RADIUS = 64 // pixels
+const COLLISION_RADIUS = 48 // pixels
 const EXPLOSION_TIME = 1 // seconds
 const EXPLOSION_RADIUS = 128 // pixels
 const EXPLOSION_DAMAGE = 1

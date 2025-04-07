@@ -3,7 +3,8 @@ import { sub } from "./sub.js";
 import { camera } from "./camera.js";
 import { Monster } from "./monster.js";
 import { PLAY_AREA_WIDTH, PLAY_AREA_HEIGHT } from "./constants.js";
-const SPEED = 350;
+import { removeEntity } from "./entity.js";
+const SPEED = 300;
 const DRAG_FACTOR = 0.95;
 const DETECTION_RADIUS = 128;
 const LOSE_CHASE_RADIUS = 384;
@@ -17,7 +18,7 @@ const alertSound = new SoundAsset('sounds/angler.wav');
 export class Angler extends Monster {
     dx = 0;
     dy = 0;
-    facing = 1; // 1 = right, -1 = left
+    facing = Math.random() > 0.5 ? 1 : -1; // 1 = right, -1 = left
     alerted = false;
     animTime = 0;
     constructor(x, y) {
@@ -30,7 +31,7 @@ export class Angler extends Monster {
         this.y = 0;
         this.dx = 0;
         this.dy = 0;
-        this.facing = 1;
+        this.facing = Math.random() > 0.5 ? 1 : -1;
         this.alerted = false;
         this.animTime = 0;
     }
@@ -103,6 +104,7 @@ export class Angler extends Monster {
         ctx.restore();
     }
     hit(damage) {
+        removeEntity(this);
     }
 }
 //# sourceMappingURL=angler.js.map

@@ -8,6 +8,8 @@ export declare class Sub extends Entity {
     dy: number;
     facing: number;
     rotation: number;
+    health: number;
+    maxHealth: number;
     oxygen: number;
     oxygenTanks: number;
     fuel: number;
@@ -22,9 +24,13 @@ export declare class Sub extends Entity {
     inventory: OreType[];
     inventorySize: number;
     inventoryPickups: Pickup[];
-    menu: 'none' | 'shop' | 'pause';
+    state: 'play' | 'shop' | 'drown' | 'explode' | 'victory' | 'title';
+    playTime: number;
+    deathTime: number;
     moveSoundCallback: (() => void) | null;
     miningSoundCallback: (() => void) | null;
+    playMusicCallback: (() => void) | null;
+    victoryMusicCallback: (() => void) | null;
     reset(): void;
     update(dt: number): void;
     render(ctx: CanvasRenderingContext2D): void;

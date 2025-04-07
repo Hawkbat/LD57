@@ -7,6 +7,7 @@ export declare class Action {
     constructor(name: string, keys: string[]);
     changeState(down: boolean): void;
     update(): void;
+    eat(): void;
 }
 export declare const ACTIONS: {
     up: Action;
