@@ -16,8 +16,8 @@ const ORE_SELL_PRICES: Record<OreType, number> = {
     [OreType.fuel]: 0,
     [OreType.oxygen]: 0,
     [OreType.bronze]: 5,
-    [OreType.silver]: 20,
-    [OreType.gold]: 50,
+    [OreType.silver]: 15,
+    [OreType.gold]: 40,
     [OreType.diamond]: 100,
 }
 
